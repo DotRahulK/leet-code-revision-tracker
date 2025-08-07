@@ -18,5 +18,5 @@ export class Problem {
   tags: string[];
 
   @Column({ type: 'text', nullable: true })
-  description: string;
+  description: string | null;
 }
