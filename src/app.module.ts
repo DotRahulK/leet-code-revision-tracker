@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { ProblemsModule } from './problems/problems.module';
+import { UserProblemsModule } from './user-problems/user-problems.module';
+import { LeetcodeModule } from './leetcode/leetcode.module';
 
 @Module({
   imports: [
@@ -15,6 +18,9 @@ import { AppService } from './app.service';
       autoLoadEntities: true,
       synchronize: false,
     }),
+    ProblemsModule,
+    UserProblemsModule,
+    LeetcodeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
