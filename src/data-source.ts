@@ -1,7 +1,7 @@
 import { DataSource } from 'typeorm';
 import { User } from './users/user.entity';
 import { Problem } from './problems/problem.entity';
-import { UserProblem } from './user-problems/user-problem.entity';
+import { UserProblem } from './user-problems/entities/user-problem.entity';
 import { ProblemList } from './problem-lists/problem-list.entity';
 import { ProblemListItem } from './problem-list-items/problem-list-item.entity';
 import { ReviewLog } from './review-logs/review-log.entity';
