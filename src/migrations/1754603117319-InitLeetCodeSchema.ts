@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class InitLeetCodeSchema1754597209 implements MigrationInterface {
-  name = 'InitLeetCodeSchema1754597209';
+export class InitLeetCodeSchema1754603117319 implements MigrationInterface {
+  name = 'InitLeetCodeSchema1754603117319';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
