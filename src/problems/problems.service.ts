@@ -65,7 +65,7 @@ export class ProblemsService {
     problem.title = meta.title;
     problem.difficulty = meta.difficulty;
     problem.tags = normalizedTags;
-    problem.description = meta.description;
+    problem.description = meta.description ?? null;
     return repository.save(problem);
   }
 
