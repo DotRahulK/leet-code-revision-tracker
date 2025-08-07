@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from 'typeorm';
-import { UserProblem } from '../user-problems/user-problem.entity';
+import { UserProblem } from '../user-problems/entities/user-problem.entity';
 
 @Entity()
 export class ReviewLog {
