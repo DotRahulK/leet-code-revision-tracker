@@ -1,0 +1,11 @@
+query submissionDetails($submissionId: ID!) {
+  submissionDetail(submissionId: $submissionId) {
+    id
+    code
+    lang
+    runtime
+    memory
+    statusDisplay
+    timestamp
+  }
+}

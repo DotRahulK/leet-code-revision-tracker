@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UserProblemsModule } from './user-problems/user-problems.module';
 import { ProblemsModule } from './problems/problems.module';
+import { LeetcodeModule } from './leetcode/leetcode.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ProblemsModule } from './problems/problems.module';
     }),
     UserProblemsModule,
     ProblemsModule,
+    LeetcodeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

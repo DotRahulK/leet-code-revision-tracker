@@ -105,7 +105,11 @@ export class UserProblemsService {
       }
     }
 
-    userProblem = this.userProblemRepo.create({ problem, user: user ?? undefined });
+    userProblem = this.userProblemRepo.create({
+      problem,
+      user: user ?? undefined,
+      interval: 1,
+    });
     return this.userProblemRepo.save(userProblem);
   }
 }
