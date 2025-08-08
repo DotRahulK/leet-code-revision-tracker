@@ -135,19 +135,19 @@ export class LeetcodeService {
           summary.failures++;
           continue;
         }
-        const { problem, created } =
-          await this.problemsService.createOrUpdateFromLcMeta({
-            title: question.title,
-            slug: item.titleSlug,
-            difficulty: question.difficulty,
-            tags: question.topicTags.map((t) => t.name),
-            description: question.content,
-          });
-        const res2 = await this.userProblemsService.updateCode(
+        const existing = await this.problemsService.findBySlug(item.titleSlug);
+        const problem = await this.problemsService.createOrUpdateFromLcMeta({
+          title: question.title,
+          slug: item.titleSlug,
+          difficulty: question.difficulty,
+          tags: question.topicTags.map((t) => t.name),
+          description: question.content,
+        });
+        const res2 = await this.userProblemsService.updateCodeForProblem(
           problem,
           submission.code,
         );
-        if (created || res2.created) {
+        if (!existing || res2.created) {
           summary.created++;
         } else {
           summary.updated++;

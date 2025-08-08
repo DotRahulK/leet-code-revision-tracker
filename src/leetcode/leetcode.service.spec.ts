@@ -4,6 +4,28 @@ import { LeetcodeClient, GraphqlResponse } from './leetcode.client';
 import { ProblemsService } from '../problems/problems.service';
 import { UserProblemsService } from '../user-problems/user-problems.service';
 
+jest.mock(
+  'class-transformer',
+  () => ({
+    plainToInstance: jest.fn((_, obj) => obj),
+    Transform: () => () => undefined,
+    Type: () => () => undefined,
+  }),
+  { virtual: true },
+);
+
+jest.mock(
+  'class-validator',
+  () =>
+    new Proxy(
+      {},
+      {
+        get: () => () => undefined,
+      },
+    ),
+  { virtual: true },
+);
+
 describe('LeetcodeService', () => {
   let service: LeetcodeService;
   let client: LeetcodeClient;
@@ -17,11 +39,14 @@ describe('LeetcodeService', () => {
         LeetcodeClient,
         {
           provide: ProblemsService,
-          useValue: { createOrUpdateFromLcMeta: jest.fn() },
+          useValue: {
+            createOrUpdateFromLcMeta: jest.fn(),
+            findBySlug: jest.fn(),
+          },
         },
         {
           provide: UserProblemsService,
-          useValue: { updateCode: jest.fn() },
+          useValue: { updateCodeForProblem: jest.fn() },
         },
       ],
     }).compile();
@@ -72,11 +97,11 @@ describe('LeetcodeService', () => {
     // eslint-disable-next-line @typescript-eslint/unbound-method
     const createOrUpdate = problems.createOrUpdateFromLcMeta as jest.Mock;
     // eslint-disable-next-line @typescript-eslint/unbound-method
-    const updateCode = userProblems.updateCode as jest.Mock;
-    createOrUpdate.mockResolvedValue({
-      problem: { id: 'p1', slug: 'a' },
-      created: true,
-    });
+    const findBySlug = problems.findBySlug as jest.Mock;
+    // eslint-disable-next-line @typescript-eslint/unbound-method
+    const updateCode = userProblems.updateCodeForProblem as jest.Mock;
+    findBySlug.mockResolvedValue(null);
+    createOrUpdate.mockResolvedValue({ id: 'p1', slug: 'a' });
     updateCode.mockResolvedValue({ created: true });
 
     const summary = await service.syncRecentAccepted({
