@@ -1,5 +1,5 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { LEETCODE_CONFIG, LeetcodeConfig } from './leetcode.config';
+import { LEETCODE_CONFIG, type LeetcodeConfig } from './leetcode.config';
 
 @Injectable()
 export class LeetcodeClient {

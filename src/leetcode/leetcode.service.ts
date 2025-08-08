@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ProblemsService } from '../problems/problems.service';
 import { UserProblemsService } from '../user-problems/user-problems.service';
 import { LeetcodeClient } from './leetcode.client';
-import { LEETCODE_CONFIG, LeetcodeConfig } from './leetcode.config';
+import { LEETCODE_CONFIG, type LeetcodeConfig } from './leetcode.config';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -19,7 +19,7 @@ const questionDetailQuery = fs.readFileSync(
   'utf8',
 );
 
-interface RecentAcceptedItem {
+export interface RecentAcceptedItem {
   id: string;
   title: string;
   titleSlug: string;
