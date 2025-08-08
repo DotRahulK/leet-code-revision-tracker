@@ -1,0 +1,9 @@
+query getQuestionDetail($titleSlug: String!) {
+  question(titleSlug: $titleSlug) {
+    questionId
+    title
+    difficulty
+    topicTags { name slug }
+    content
+  }
+}
