@@ -1,0 +1,31 @@
+{
+  "name": "@lcrt/frontend",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "setup": "npm i",
+    "api:gen": "ng-openapi-gen -c ng-openapi-gen.json",
+    "prestart": "npm run api:gen",
+    "start": "ng serve --port 4200",
+    "build": "npm run api:gen && ng build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@angular/animations": "^17.3.0",
+    "@angular/common": "^17.3.0",
+    "@angular/compiler": "^17.3.0",
+    "@angular/core": "^17.3.0",
+    "@angular/platform-browser": "^17.3.0",
+    "@angular/platform-browser-dynamic": "^17.3.0",
+    "@angular/router": "^17.3.0",
+    "@angular/material": "^17.3.0",
+    "rxjs": "^7.8.1",
+    "tslib": "^2.6.2",
+    "zone.js": "^0.14.2"
+  },
+  "devDependencies": {
+    "@angular/cli": "^17.3.0",
+    "ng-openapi-gen": "^0.23.0",
+    "typescript": "^5.7.3"
+  }
+}

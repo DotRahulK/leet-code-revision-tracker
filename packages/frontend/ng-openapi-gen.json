@@ -1,0 +1,7 @@
+{
+  "input": "http://localhost:3000/api-json",
+  "output": "src/app/api",
+  "serviceSuffix": "Api",
+  "enumStyle": "enum",
+  "addReadonly": true
+}

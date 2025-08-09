@@ -1,0 +1,5 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+
+body { margin: 0; font-family: Roboto, sans-serif; }
