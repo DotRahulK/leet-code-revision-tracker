@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Problem } from './problem.entity';
@@ -9,12 +9,14 @@ import { validateSync } from 'class-validator';
 
 @Injectable()
 export class ProblemsService {
+  private readonly logger = new Logger(ProblemsService.name);
   constructor(
     @InjectRepository(Problem)
     private readonly repo: Repository<Problem>,
   ) {}
 
   async findAll(query: GetProblemsQueryDto = {} as any) {
+    this.logger.debug(`Finding problems with query ${JSON.stringify(query)}`);
     const qb = this.repo.createQueryBuilder('problem');
 
     if (query.search) {
@@ -39,10 +41,12 @@ export class ProblemsService {
     qb.take(limit).skip(offset);
 
     const [items, total] = await qb.getManyAndCount();
+    this.logger.debug(`Found ${total} problems`);
     return { items, total, limit, offset };
   }
 
   async findBySlug(slug: string): Promise<Problem | null> {
+    this.logger.debug(`Looking up problem by slug ${slug}`);
     return this.repo.findOne({ where: { slug } });
   }
 
@@ -57,6 +61,7 @@ export class ProblemsService {
     meta: UpsertProblemDto,
     repository: Repository<Problem> = this.repo,
   ): Promise<Problem> {
+    this.logger.debug(`Upserting problem ${meta.slug}`);
     const normalizedTags = this.normalizeTags(meta.tags || []);
     let problem = await repository.findOne({ where: { slug: meta.slug } });
     if (!problem) {
@@ -66,7 +71,9 @@ export class ProblemsService {
     problem.difficulty = meta.difficulty;
     problem.tags = normalizedTags;
     problem.description = meta.description ?? null;
-    return repository.save(problem);
+    const saved = await repository.save(problem);
+    this.logger.debug(`Saved problem ${meta.slug}`);
+    return saved;
   }
 
   async bulkImportFromJson(items: UpsertProblemDto[]) {
@@ -80,12 +87,11 @@ export class ProblemsService {
         const dto = plainToInstance(UpsertProblemDto, items[i]);
         const validationErrors = validateSync(dto);
         if (validationErrors.length) {
-          errors.push({
-            index: i,
-            reason: Object.values(
-              validationErrors[0].constraints ?? {},
-            ).join(', '),
-          });
+          const reason = Object.values(
+            validationErrors[0].constraints ?? {},
+          ).join(', ');
+          errors.push({ index: i, reason });
+          this.logger.warn(`Skipping item ${i}: ${reason}`);
           continue;
         }
         const exists = await repo.findOne({ where: { slug: dto.slug } });
@@ -98,6 +104,9 @@ export class ProblemsService {
       }
     });
 
+    this.logger.debug(
+      `Bulk import complete: created ${created}, updated ${updated}, errors ${errors.length}`,
+    );
     return { created, updated, errors };
   }
 }

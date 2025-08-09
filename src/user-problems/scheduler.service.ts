@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 export interface ScheduleState {
   interval: number;
@@ -12,7 +12,12 @@ export interface ScheduleResult extends ScheduleState {
 
 @Injectable()
 export class SchedulerService {
+  private readonly logger = new Logger(SchedulerService.name);
+
   scheduleNextReview(current: ScheduleState, quality: number): ScheduleResult {
+    this.logger.debug(
+      `Calculating next review with quality ${quality} and state ${JSON.stringify(current)}`,
+    );
     const today = new Date();
     let { interval, repetition, easinessFactor } = current;
 
@@ -39,6 +44,10 @@ export class SchedulerService {
     const nextReviewAt = new Date(today);
     nextReviewAt.setDate(today.getDate() + interval);
 
-    return { interval, repetition, easinessFactor, nextReviewAt };
+    const result = { interval, repetition, easinessFactor, nextReviewAt };
+    this.logger.debug(
+      `Next review scheduled on ${nextReviewAt.toISOString()} with interval ${interval}`,
+    );
+    return result;
   }
 }
