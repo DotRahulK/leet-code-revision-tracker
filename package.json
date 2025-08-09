@@ -4,13 +4,15 @@
   "workspaces": ["packages/*"],
   "scripts": {
     "setup": "npm install && npm run setup -w @lcrt/backend && npm run setup -w @lcrt/frontend",
-    "dev": "concurrently -k \"npm run start:dev -w @lcrt/backend\" \"npm run start -w @lcrt/frontend\"",
+    "dev": "concurrently -k \"npm run start:dev -w @lcrt/backend\" \"npm run start:frontend\"",
+    "start:frontend": "wait-on http://localhost:3000/api-json && npm run start -w @lcrt/frontend",
     "build": "npm run build -w @lcrt/backend && npm run build -w @lcrt/frontend",
     "lint": "npm run lint -w @lcrt/backend && npm run lint -w @lcrt/frontend",
     "format": "npm run format -w @lcrt/backend && npm run format -w @lcrt/frontend",
     "typecheck": "npm run typecheck -w @lcrt/backend && npm run typecheck -w @lcrt/frontend"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "wait-on": "^7.0.1"
   }
 }
