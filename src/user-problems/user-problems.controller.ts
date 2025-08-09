@@ -12,6 +12,7 @@ import { UserProblemsService } from './user-problems.service';
 import { RateRecallDto } from './dto/rate-recall.dto';
 import { UpdateNotesDto } from './dto/update-notes.dto';
 import { UpdateCodeDto } from './dto/update-code.dto';
+import { LinkProblemDto } from './dto/link-problem.dto';
 
 @ApiTags('user-problems')
 @Controller()
@@ -29,6 +30,15 @@ export class UserProblemsController {
   @ApiBody({ type: RateRecallDto })
   rateRecall(@Param('id') id: string, @Body() dto: RateRecallDto) {
     return this.userProblemsService.rateRecall(id, dto.quality);
+  }
+
+  @Post('user-problems')
+  @ApiBody({ type: LinkProblemDto })
+  linkProblem(@Body() dto: LinkProblemDto) {
+    return this.userProblemsService.linkProblemToUser(
+      dto.problemId,
+      dto.userId,
+    );
   }
 
   @Patch('user-problems/:id/notes')
