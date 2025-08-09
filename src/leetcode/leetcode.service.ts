@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ProblemsService } from '../problems/problems.service';
 import { UserProblemsService } from '../user-problems/user-problems.service';
 import { LeetcodeClient } from './leetcode.client';
@@ -28,6 +28,7 @@ export interface RecentAcceptedItem {
 
 @Injectable()
 export class LeetcodeService {
+  private readonly logger = new Logger(LeetcodeService.name);
   constructor(
     private readonly client: LeetcodeClient,
     private readonly problemsService: ProblemsService,
@@ -45,19 +46,22 @@ export class LeetcodeService {
   }
 
   async getRecentAccepted(username: string, limit = this.config.pageSize) {
-    const res = await this.client.post<{ data: { recentAcSubmissionList: any[] } }>(
-      recentAcSubmissionsQuery,
-      { username, limit },
-    );
-    return res.data.recentAcSubmissionList.map((s) => ({
+    this.logger.debug(`Fetching recent accepted submissions for ${username}`);
+    const res = await this.client.post<{
+      data: { recentAcSubmissionList: any[] };
+    }>(recentAcSubmissionsQuery, { username, limit });
+    const items = res.data.recentAcSubmissionList.map((s) => ({
       id: String(s.id),
       title: s.title,
       titleSlug: s.titleSlug,
       timestamp: Number(s.timestamp),
     })) as RecentAcceptedItem[];
+    this.logger.debug(`Retrieved ${items.length} submissions`);
+    return items;
   }
 
   async getSubmissionDetail(submissionId: string) {
+    this.logger.debug(`Fetching submission detail for ${submissionId}`);
     const res = await this.client.post<{ data: { submissionDetail: any } }>(
       submissionDetailQuery,
       { submissionId },
@@ -66,6 +70,7 @@ export class LeetcodeService {
   }
 
   async getQuestionDetail(slug: string) {
+    this.logger.debug(`Fetching question detail for ${slug}`);
     const res = await this.client.post<{ data: { question: any } }>(
       questionDetailQuery,
       { titleSlug: slug },
@@ -83,9 +88,15 @@ export class LeetcodeService {
   }: {
     username?: string;
     limit?: number;
-  }): Promise<{ created: number; updated: number; failures: number; items: string[] }> {
+  }): Promise<{
+    created: number;
+    updated: number;
+    failures: number;
+    items: string[];
+  }> {
     const user = username || this.config.username;
     const lim = limit ?? this.config.pageSize;
+    this.logger.log(`Syncing recent accepted for ${user} (limit ${lim})`);
     const recent = await this.getRecentAccepted(user, lim);
     const dedupedMap = new Map<string, RecentAcceptedItem>();
     for (const r of recent) {
@@ -101,6 +112,7 @@ export class LeetcodeService {
     for (const item of deduped) {
       await this.delay(150);
       try {
+        this.logger.debug(`Processing ${item.titleSlug}`);
         const question = await this.getQuestionDetail(item.titleSlug);
         const exists = await this.problemsService.findBySlug(item.titleSlug);
         const problem = await this.problemsService.createOrUpdateFromLcMeta({
@@ -120,17 +132,29 @@ export class LeetcodeService {
         if (submission.statusDisplay !== 'Accepted') {
           throw new Error('Submission not accepted');
         }
-        const userProblem = await this.userProblemsService.linkProblemToUser(problem.id);
+        const userProblem = await this.userProblemsService.linkProblemToUser(
+          problem.id,
+        );
         if (userProblem.interval === 0 && userProblem.repetition === 0) {
           userProblem.interval = 1;
         }
-        await this.userProblemsService.updateCode(userProblem.id, submission.code);
+        await this.userProblemsService.updateCode(
+          userProblem.id,
+          submission.code,
+        );
         items.push(item.titleSlug);
+        this.logger.debug(`Processed ${item.titleSlug}`);
       } catch (e) {
         failures++;
+        this.logger.warn(
+          `Failed processing ${item.titleSlug}: ${e instanceof Error ? e.message : e}`,
+        );
       }
     }
 
+    this.logger.log(
+      `Sync complete: created ${created}, updated ${updated}, failures ${failures}`,
+    );
     return { created, updated, failures, items };
   }
 }
