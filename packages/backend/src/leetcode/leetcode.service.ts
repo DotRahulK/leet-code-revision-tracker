@@ -3,6 +3,10 @@ import { ProblemsService } from '../problems/problems.service';
 import { UserProblemsService } from '../user-problems/user-problems.service';
 import { LeetcodeClient } from './leetcode.client';
 import { LEETCODE_CONFIG, type LeetcodeConfig } from './leetcode.config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ProblemList } from '../problem-lists/problem-list.entity';
+import { ProblemListItem } from '../problem-list-items/problem-list-item.entity';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -35,6 +39,10 @@ export class LeetcodeService {
     private readonly userProblemsService: UserProblemsService,
     @Inject(LEETCODE_CONFIG)
     private readonly config: LeetcodeConfig,
+    @InjectRepository(ProblemList)
+    private readonly listRepo: Repository<ProblemList>,
+    @InjectRepository(ProblemListItem)
+    private readonly listItemRepo: Repository<ProblemListItem>,
   ) {}
 
   getDefaultUsername() {
@@ -156,5 +164,40 @@ export class LeetcodeService {
       `Sync complete: created ${created}, updated ${updated}, failures ${failures}`,
     );
     return { created, updated, failures, items };
+  }
+
+  async importList(name: string, slugs: string[]) {
+    this.logger.log(`Importing list ${name} with ${slugs.length} items`);
+    const list = await this.listRepo.save(this.listRepo.create({ name }));
+    const today = new Date();
+
+    for (let i = 0; i < slugs.length; i++) {
+      const slug = slugs[i];
+      try {
+        const question = await this.getQuestionDetail(slug);
+        const problem = await this.problemsService.createOrUpdateFromLcMeta({
+          slug,
+          title: question.title,
+          difficulty: question.difficulty,
+          tags: (question.topicTags || []).map((t: any) => t.name),
+          description: question.content,
+        });
+        await this.listItemRepo.save(
+          this.listItemRepo.create({ list, problem, order: i }),
+        );
+        const userProblem = await this.userProblemsService.linkProblemToUser(
+          problem.id,
+        );
+        const date = new Date(today);
+        date.setDate(today.getDate() + i);
+        await this.userProblemsService.schedule(userProblem.id, date);
+      } catch (e) {
+        this.logger.warn(
+          `Failed importing ${slug}: ${e instanceof Error ? e.message : e}`,
+        );
+      }
+    }
+
+    return list;
   }
 }

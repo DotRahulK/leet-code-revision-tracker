@@ -3,6 +3,7 @@ import { ApiBody, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { LeetcodeService } from './leetcode.service';
 import { SyncDto } from './dto/sync.dto';
 import { RecentDto } from './dto/recent.dto';
+import { ImportListDto } from './dto/import-list.dto';
 
 @ApiTags('leetcode')
 @Controller('leetcode')
@@ -13,6 +14,12 @@ export class LeetcodeController {
   @ApiBody({ type: SyncDto })
   sync(@Body() dto: SyncDto) {
     return this.service.syncRecentAccepted(dto);
+  }
+
+  @Post('list')
+  @ApiBody({ type: ImportListDto })
+  importList(@Body() dto: ImportListDto) {
+    return this.service.importList(dto.name, dto.slugs);
   }
 
   @Get('recent')

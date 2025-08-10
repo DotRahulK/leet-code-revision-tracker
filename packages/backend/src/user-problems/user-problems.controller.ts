@@ -25,6 +25,12 @@ export class UserProblemsController {
     return this.userProblemsService.getDueReviews(userId);
   }
 
+  @Get('reviews/unscored')
+  @ApiQuery({ name: 'userId', required: false })
+  getUnscored(@Query('userId') userId?: string) {
+    return this.userProblemsService.getUnscored(userId);
+  }
+
   @Post('reviews/:id')
   @ApiParam({ name: 'id', description: 'UserProblem identifier' })
   @ApiBody({ type: RateRecallDto })
