@@ -207,4 +207,13 @@ export class LeetcodeService {
     const { name, slugs } = await this.client.getProblemList(slug);
     return this.importList(name, slugs);
   }
+
+  async getLeetcodeListMeta(identifier: string) {
+    const parts = identifier.split('/').filter(Boolean);
+    const slug = parts[parts.length - 1];
+    if (!slug) {
+      throw new Error('Invalid list identifier');
+    }
+    return this.client.getListMeta(slug);
+  }
 }

@@ -22,6 +22,12 @@ export class LeetcodeController {
     return this.service.importLeetcodeList(dto.list);
   }
 
+  @Get('list/meta')
+  @ApiQuery({ name: 'list', description: 'LeetCode list URL or slug' })
+  listMeta(@Query('list') list: string) {
+    return this.service.getLeetcodeListMeta(list);
+  }
+
   @Get('recent')
   @ApiQuery({
     name: 'limit',

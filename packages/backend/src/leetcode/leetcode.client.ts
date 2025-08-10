@@ -47,19 +47,40 @@ export class LeetcodeClient {
     const limit = 50;
     let skip = 0;
     const slugs: string[] = [];
-    let total = Infinity;
 
-    while (skip < total) {
-      const res = await this.post<{ data: { problemsetQuestionList: { total: number; questions: any[] } } }>(
+    while (true) {
+      const res = await this.post<{ data: { problemsetQuestionList: { questions: any[] } } }>(
         this.problemsetQuestionListQuery,
         { listId, skip, limit },
       );
       const data = res.data.problemsetQuestionList;
-      total = data.total;
-      slugs.push(...data.questions.map((q: any) => q.titleSlug));
+      const questions = data?.questions ?? [];
+      if (questions.length === 0) break;
+      slugs.push(...questions.map((q: any) => q.titleSlug));
+      if (questions.length < limit) break;
       skip += limit;
     }
 
     return { name: listId, slugs };
+  }
+
+  async getListMeta(listId: string): Promise<{ name: string; total: number }> {
+    const res = await fetch(`https://leetcode.com/api/list/${listId}/`, {
+      headers: {
+        Cookie: `LEETCODE_SESSION=${this.config.session}; csrftoken=${this.config.csrfToken}`,
+        'x-csrftoken': this.config.csrfToken,
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Request failed with status ${res.status}`);
+    }
+
+    const data = await res.json();
+    const total = Array.isArray(data.questions)
+      ? data.questions.length
+      : data.num_questions ?? 0;
+
+    return { name: data.name ?? listId, total };
   }
 }
