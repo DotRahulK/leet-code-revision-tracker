@@ -1,7 +1,5 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { LEETCODE_CONFIG, type LeetcodeConfig } from './leetcode.config';
-import * as fs from 'fs';
-import * as path from 'path';
 
 @Injectable()
 export class LeetcodeClient {
@@ -36,32 +34,6 @@ export class LeetcodeClient {
 
   post<T>(query: string, variables: Record<string, any>): Promise<T> {
     return this.request({ query, variables });
-  }
-
-  private readonly problemsetQuestionListQuery = fs.readFileSync(
-    path.join(__dirname, 'graphql/problemsetQuestionList.graphql'),
-    'utf8',
-  );
-
-  async getProblemList(listId: string): Promise<{ name: string; slugs: string[] }> {
-    const limit = 50;
-    let skip = 0;
-    const slugs: string[] = [];
-
-    while (true) {
-      const res = await this.post<{ data: { problemsetQuestionList: { questions: any[] } } }>(
-        this.problemsetQuestionListQuery,
-        { listId, skip, limit },
-      );
-      const data = res.data.problemsetQuestionList;
-      const questions = data?.questions ?? [];
-      if (questions.length === 0) break;
-      slugs.push(...questions.map((q: any) => q.titleSlug));
-      if (questions.length < limit) break;
-      skip += limit;
-    }
-
-    return { name: listId, slugs };
   }
 
   async getListMeta(listId: string): Promise<{ name: string; total: number }> {

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { HttpModule } from '@nestjs/axios';
 import { LeetcodeService } from './leetcode.service';
 import { LeetcodeController } from './leetcode.controller';
 import { LeetcodeClient } from './leetcode.client';
@@ -14,6 +15,7 @@ import { ProblemListItem } from '../problem-list-items/problem-list-item.entity'
     ProblemsModule,
     UserProblemsModule,
     TypeOrmModule.forFeature([ProblemList, ProblemListItem]),
+    HttpModule,
   ],
   providers: [
     LeetcodeService,
