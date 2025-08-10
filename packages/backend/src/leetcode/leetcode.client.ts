@@ -1,5 +1,7 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { LEETCODE_CONFIG, type LeetcodeConfig } from './leetcode.config';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class LeetcodeClient {
@@ -36,20 +38,28 @@ export class LeetcodeClient {
     return this.request({ query, variables });
   }
 
-  async getProblemList(slug: string): Promise<{ name: string; slugs: string[] }> {
-    const res = await fetch(`https://leetcode.com/list/api/questions/${slug}/?page=1`, {
-      headers: {
-        Cookie: `LEETCODE_SESSION=${this.config.session}; csrftoken=${this.config.csrfToken}`,
-        'x-csrftoken': this.config.csrfToken,
-      },
-    });
-    if (!res.ok) {
-      throw new Error(`Failed to fetch list ${slug}`);
+  private readonly problemsetQuestionListQuery = fs.readFileSync(
+    path.join(__dirname, 'graphql/problemsetQuestionList.graphql'),
+    'utf8',
+  );
+
+  async getProblemList(listId: string): Promise<{ name: string; slugs: string[] }> {
+    const limit = 50;
+    let skip = 0;
+    const slugs: string[] = [];
+    let total = Infinity;
+
+    while (skip < total) {
+      const res = await this.post<{ data: { problemsetQuestionList: { total: number; questions: any[] } } }>(
+        this.problemsetQuestionListQuery,
+        { listId, skip, limit },
+      );
+      const data = res.data.problemsetQuestionList;
+      total = data.total;
+      slugs.push(...data.questions.map((q: any) => q.titleSlug));
+      skip += limit;
     }
-    const data: any = await res.json();
-    const questions = data.questions || data.stat_status_pairs || [];
-    const slugs = questions.map((q: any) => q.slug || q.stat?.question__title_slug).filter(Boolean);
-    const name = data.name || slug;
-    return { name, slugs };
+
+    return { name: listId, slugs };
   }
 }

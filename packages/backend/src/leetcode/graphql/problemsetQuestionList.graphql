@@ -1,0 +1,23 @@
+query problemsetQuestionList(
+  $listId: String!,
+  $skip: Int!,
+  $limit: Int!
+) {
+  problemsetQuestionList: questionList(
+    categorySlug: ""
+    skip: $skip
+    limit: $limit
+    filters: { listId: $listId }
+  ) {
+    total: totalNum
+    questions: data {
+      questionFrontendId
+      title
+      titleSlug
+      difficulty
+      topicTags { name slug }
+      isPaidOnly
+      status
+    }
+  }
+}
