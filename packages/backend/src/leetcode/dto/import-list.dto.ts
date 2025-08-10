@@ -1,10 +1,7 @@
-import { IsArray, ArrayNotEmpty, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class ImportListDto {
   @IsString()
-  name: string;
-
-  @IsArray()
-  @ArrayNotEmpty()
-  slugs: string[];
+  list: string;
 }
+

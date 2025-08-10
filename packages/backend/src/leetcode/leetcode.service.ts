@@ -168,8 +168,10 @@ export class LeetcodeService {
 
   async importList(name: string, slugs: string[]) {
     this.logger.log(`Importing list ${name} with ${slugs.length} items`);
-    const list = await this.listRepo.save(this.listRepo.create({ name }));
-    const today = new Date();
+    const count = await this.listRepo.count();
+    const list = await this.listRepo.save(
+      this.listRepo.create({ name, scheduled: count === 0 }),
+    );
 
     for (let i = 0; i < slugs.length; i++) {
       const slug = slugs[i];
@@ -185,12 +187,7 @@ export class LeetcodeService {
         await this.listItemRepo.save(
           this.listItemRepo.create({ list, problem, order: i }),
         );
-        const userProblem = await this.userProblemsService.linkProblemToUser(
-          problem.id,
-        );
-        const date = new Date(today);
-        date.setDate(today.getDate() + i);
-        await this.userProblemsService.schedule(userProblem.id, date);
+        await this.userProblemsService.linkProblemToUser(problem.id);
       } catch (e) {
         this.logger.warn(
           `Failed importing ${slug}: ${e instanceof Error ? e.message : e}`,
@@ -199,5 +196,15 @@ export class LeetcodeService {
     }
 
     return list;
+  }
+
+  async importLeetcodeList(identifier: string) {
+    const parts = identifier.split('/').filter(Boolean);
+    const slug = parts[parts.length - 1];
+    if (!slug) {
+      throw new Error('Invalid list identifier');
+    }
+    const { name, slugs } = await this.client.getProblemList(slug);
+    return this.importList(name, slugs);
   }
 }

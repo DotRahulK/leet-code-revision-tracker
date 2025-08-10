@@ -19,7 +19,7 @@ export class LeetcodeController {
   @Post('list')
   @ApiBody({ type: ImportListDto })
   importList(@Body() dto: ImportListDto) {
-    return this.service.importList(dto.name, dto.slugs);
+    return this.service.importLeetcodeList(dto.list);
   }
 
   @Get('recent')

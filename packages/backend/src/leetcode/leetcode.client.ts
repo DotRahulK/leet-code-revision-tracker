@@ -35,4 +35,21 @@ export class LeetcodeClient {
   post<T>(query: string, variables: Record<string, any>): Promise<T> {
     return this.request({ query, variables });
   }
+
+  async getProblemList(slug: string): Promise<{ name: string; slugs: string[] }> {
+    const res = await fetch(`https://leetcode.com/list/api/questions/${slug}/?page=1`, {
+      headers: {
+        Cookie: `LEETCODE_SESSION=${this.config.session}; csrftoken=${this.config.csrfToken}`,
+        'x-csrftoken': this.config.csrfToken,
+      },
+    });
+    if (!res.ok) {
+      throw new Error(`Failed to fetch list ${slug}`);
+    }
+    const data: any = await res.json();
+    const questions = data.questions || data.stat_status_pairs || [];
+    const slugs = questions.map((q: any) => q.slug || q.stat?.question__title_slug).filter(Boolean);
+    const name = data.name || slug;
+    return { name, slugs };
+  }
 }
