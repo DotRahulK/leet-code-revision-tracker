@@ -22,6 +22,13 @@ describe('ProblemsFacade', () => {
       expect(res[0].slug).toBe('two-sum');
     });
     const req = http.expectOne('/api/problems');
-    req.flush([{ id: '1', slug: 'two-sum', title: 'Two Sum', difficulty: 'Easy', tags: [] }]);
+    req.flush({
+      items: [
+        { id: '1', slug: 'two-sum', title: 'Two Sum', difficulty: 'Easy', tags: [] }
+      ],
+      total: 1,
+      limit: 20,
+      offset: 0
+    });
   });
 });

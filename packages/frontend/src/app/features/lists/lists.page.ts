@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { AsyncPipe, NgFor } from '@angular/common';
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogComponent } from '../../shared/ui/confirm-dialog/confirm-dialog.component';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
 import { ListsFacade } from '../../core/lists.facade';
 import { UiList } from '../../core/models';
 import { Observable } from 'rxjs';
@@ -11,12 +13,23 @@ import { Observable } from 'rxjs';
 @Component({
   selector: 'app-lists-page',
   standalone: true,
-  imports: [MatListModule, MatButtonModule, NgFor, AsyncPipe],
+  imports: [
+    MatListModule,
+    MatButtonModule,
+    NgFor,
+    AsyncPipe,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+  ],
   templateUrl: './lists.page.html',
   styleUrls: ['./lists.page.scss']
 })
 export class ListsPage implements OnInit {
   lists$!: Observable<UiList[]>;
+  importUrl = '';
+  @ViewChild('importDialog') importDialog!: TemplateRef<any>;
 
   constructor(private dialog: MatDialog, private facade: ListsFacade) {}
 
@@ -29,9 +42,8 @@ export class ListsPage implements OnInit {
   }
 
   import() {
-    const ref = this.dialog.open(ConfirmDialogComponent, {
-      data: { title: 'Import List', message: 'Enter list URL or slug:' }
-    });
+    this.importUrl = '';
+    const ref = this.dialog.open(this.importDialog);
     ref.afterClosed().subscribe((url: string) => {
       if (url) {
         this.facade.importList(url).subscribe(() => this.load());
