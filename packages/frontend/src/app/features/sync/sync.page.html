@@ -1,0 +1,8 @@
+<mat-card class="sync-card">
+  <button mat-raised-button color="primary" (click)="sync()">Sync Now</button>
+  <div *ngIf="result$ | async as r" class="summary">
+    <p>Created: {{ r.created }}</p>
+    <p>Updated: {{ r.updated }}</p>
+    <p>Failures: {{ r.failures }}</p>
+  </div>
+</mat-card>

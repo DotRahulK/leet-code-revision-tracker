@@ -6,6 +6,7 @@ import { UserProblemsModule } from './user-problems/user-problems.module';
 import { ProblemsModule } from './problems/problems.module';
 import { LeetcodeModule } from './leetcode/leetcode.module';
 import { UsersModule } from './users/users.module';
+import { ProblemListsModule } from './problem-lists/problem-lists.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { UsersModule } from './users/users.module';
     ProblemsModule,
     LeetcodeModule,
     UsersModule,
+    ProblemListsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

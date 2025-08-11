@@ -35,4 +35,24 @@ export class LeetcodeClient {
   post<T>(query: string, variables: Record<string, any>): Promise<T> {
     return this.request({ query, variables });
   }
+
+  async getListMeta(listId: string): Promise<{ name: string; total: number }> {
+    const res = await fetch(`https://leetcode.com/api/list/${listId}/`, {
+      headers: {
+        Cookie: `LEETCODE_SESSION=${this.config.session}; csrftoken=${this.config.csrfToken}`,
+        'x-csrftoken': this.config.csrfToken,
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Request failed with status ${res.status}`);
+    }
+
+    const data = await res.json();
+    const total = Array.isArray(data.questions)
+      ? data.questions.length
+      : data.num_questions ?? 0;
+
+    return { name: data.name ?? listId, total };
+  }
 }

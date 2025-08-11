@@ -1,10 +1,17 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import type { AxiosResponse } from 'axios';
 import { ProblemsService } from '../problems/problems.service';
 import { UserProblemsService } from '../user-problems/user-problems.service';
 import { LeetcodeClient } from './leetcode.client';
 import { LEETCODE_CONFIG, type LeetcodeConfig } from './leetcode.config';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { ProblemList } from '../problem-lists/problem-list.entity';
+import { ProblemListItem } from '../problem-list-items/problem-list-item.entity';
 import * as fs from 'fs';
 import * as path from 'path';
+import { firstValueFrom } from 'rxjs';
 
 const recentAcSubmissionsQuery = fs.readFileSync(
   path.join(__dirname, 'graphql/recentAcSubmissions.graphql'),
@@ -18,6 +25,32 @@ const questionDetailQuery = fs.readFileSync(
   path.join(__dirname, 'graphql/questionDetail.graphql'),
   'utf8',
 );
+
+type LCQuestion = { titleSlug: string };
+type LCResponse = {
+  data?: {
+    problemsetQuestionList?: {
+      total?: number;
+      questions?: LCQuestion[];
+    };
+  };
+};
+
+const PROBLEMSET_QUERY = `
+query problemsetQuestionList($categorySlug: String, $limit: Int, $skip: Int, $filters: QuestionListFilterInput) {
+  problemsetQuestionList: questionList(
+    categorySlug: $categorySlug
+    limit: $limit
+    skip: $skip
+    filters: $filters
+  ) {
+    total: totalNum
+    questions: data {
+      titleSlug
+    }
+  }
+}
+`;
 
 export interface RecentAcceptedItem {
   id: string;
@@ -35,6 +68,11 @@ export class LeetcodeService {
     private readonly userProblemsService: UserProblemsService,
     @Inject(LEETCODE_CONFIG)
     private readonly config: LeetcodeConfig,
+    @InjectRepository(ProblemList)
+    private readonly listRepo: Repository<ProblemList>,
+    @InjectRepository(ProblemListItem)
+    private readonly listItemRepo: Repository<ProblemListItem>,
+    private readonly http: HttpService,
   ) {}
 
   getDefaultUsername() {
@@ -156,5 +194,113 @@ export class LeetcodeService {
       `Sync complete: created ${created}, updated ${updated}, failures ${failures}`,
     );
     return { created, updated, failures, items };
+  }
+
+  async importList(name: string, slugs: string[]) {
+    this.logger.log(`Importing list ${name} with ${slugs.length} items`);
+    const count = await this.listRepo.count();
+    const list = await this.listRepo.save(
+      this.listRepo.create({ name, scheduled: count === 0 }),
+    );
+
+    for (let i = 0; i < slugs.length; i++) {
+      const slug = slugs[i];
+      try {
+        const question = await this.getQuestionDetail(slug);
+        const problem = await this.problemsService.createOrUpdateFromLcMeta({
+          slug,
+          title: question.title,
+          difficulty: question.difficulty,
+          tags: (question.topicTags || []).map((t: any) => t.name),
+          description: question.content,
+        });
+        await this.listItemRepo.save(
+          this.listItemRepo.create({ list, problem, order: i }),
+        );
+        await this.userProblemsService.linkProblemToUser(problem.id);
+      } catch (e) {
+        this.logger.warn(
+          `Failed importing ${slug}: ${e instanceof Error ? e.message : e}`,
+        );
+      }
+    }
+
+    return list;
+  }
+
+  private extractProblemListSlug(url: string): string | null {
+    const u = new URL(url);
+    const parts = u.pathname.split('/').filter(Boolean);
+    const i = parts.findIndex((p) => p === 'problem-list');
+    return i >= 0 && parts[i + 1] ? parts[i + 1] : null;
+  }
+
+  /**
+   * Fetch problem slugs from a LeetCode problem list URL. For URLs like
+   * https://leetcode.com/problem-list/dynamic-programming/, we treat the slug
+   * as a topic tag and query with filters.tags = [slug].
+   */
+  async slugsFromProblemListUrl(listUrl: string): Promise<string[]> {
+    const slug = this.extractProblemListSlug(listUrl);
+    if (!slug) throw new Error('Could not parse problem-list slug from URL');
+
+    const limit = 50;
+    let skip = 0;
+    let total = Infinity;
+    const slugs: string[] = [];
+
+    while (skip < total) {
+      const variables = {
+        categorySlug: '',
+        limit,
+        skip,
+        filters: { tags: [slug] } as any,
+      };
+
+      const res = await firstValueFrom<AxiosResponse<LCResponse>>(
+        this.http.post<LCResponse>(
+          'https://leetcode.com/graphql',
+          {
+            query: PROBLEMSET_QUERY,
+            variables,
+            operationName: 'problemsetQuestionList',
+          },
+          {
+            headers: {
+              'content-type': 'application/json',
+              Referer: 'https://leetcode.com',
+            },
+          },
+        ),
+      );
+
+      const body = res.data?.data?.problemsetQuestionList;
+      const page = body?.questions ?? [];
+      page.forEach((q) => slugs.push(q.titleSlug));
+      if (total === Infinity) total = body?.total ?? page.length;
+      skip += limit;
+
+      if (skip < total) await new Promise((r) => setTimeout(r, 500));
+    }
+
+    return Array.from(new Set(slugs));
+  }
+
+  async importLeetcodeList(identifier: string) {
+    const url = identifier.startsWith('http')
+      ? identifier
+      : `https://leetcode.com/problem-list/${identifier}/`;
+    const slugs = await this.slugsFromProblemListUrl(url);
+    const name = this.extractProblemListSlug(url) ?? identifier;
+    return this.importList(name, slugs);
+  }
+
+  async getLeetcodeListMeta(identifier: string) {
+    const parts = identifier.split('/').filter(Boolean);
+    const slug = parts[parts.length - 1];
+    if (!slug) {
+      throw new Error('Invalid list identifier');
+    }
+    return this.client.getListMeta(slug);
   }
 }

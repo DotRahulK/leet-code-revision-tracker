@@ -14,4 +14,7 @@ export class ProblemList {
 
   @ManyToOne(() => User, { nullable: true })
   user: User;
+
+  @Column({ default: false })
+  scheduled: boolean;
 }

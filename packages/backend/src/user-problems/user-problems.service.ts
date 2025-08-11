@@ -45,6 +45,22 @@ export class UserProblemsService {
     return results;
   }
 
+  async getUnscored(userId?: string): Promise<UserProblem[]> {
+    this.logger.debug(
+      `Fetching unscored problems${userId ? ` for user ${userId}` : ''}`,
+    );
+    const qb = this.userProblemRepo
+      .createQueryBuilder('userProblem')
+      .leftJoinAndSelect('userProblem.problem', 'problem')
+      .where('userProblem.nextReviewAt IS NULL');
+    if (userId) {
+      qb.andWhere('userProblem.userId = :userId', { userId });
+    }
+    const results = await qb.orderBy('userProblem.createdAt', 'ASC').getMany();
+    this.logger.debug(`Found ${results.length} unscored problems`);
+    return results;
+  }
+
   async rateRecall(id: string, quality: number): Promise<UserProblem> {
     this.logger.debug(`Rating recall for ${id} with quality ${quality}`);
     if (quality < 0 || quality > 5) {
@@ -149,5 +165,16 @@ export class UserProblemsService {
       `Linked problem ${problemId} to ${userId ? `user ${userId}` : 'global pool'}`,
     );
     return saved;
+  }
+
+  async schedule(id: string, date: Date): Promise<UserProblem> {
+    this.logger.debug(`Scheduling ${id} for ${date.toISOString()}`);
+    const userProblem = await this.userProblemRepo.findOne({ where: { id } });
+    if (!userProblem) {
+      throw new NotFoundException('UserProblem not found');
+    }
+    userProblem.nextReviewAt = date;
+    await this.userProblemRepo.save(userProblem);
+    return userProblem;
   }
 }
