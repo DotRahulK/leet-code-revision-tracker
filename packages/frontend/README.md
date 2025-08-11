@@ -13,6 +13,14 @@ npm start
 
 Routes are defined in `src/app/app.routes.ts`.
 
+### Pages
+
+- `/` dashboard
+- `/reviews` spaced-repetition reviews
+- `/problems` problem browser
+- `/lists` saved lists
+- `/sync` trigger LeetCode sync
+
 ### Theme Toggle
 
 Use the slide toggle in the application toolbar to switch between light and high-contrast dark themes. The choice persists across reloads.

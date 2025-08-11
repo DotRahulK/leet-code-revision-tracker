@@ -14,5 +14,6 @@ export const appRoutes: Routes = [
   { path: 'problems/:slug', component: ProblemDetailPage },
   { path: 'lists', component: ListsPage },
   { path: 'lists/:id', component: ListDetailPage },
-  { path: 'sync', component: SyncPage }
+  { path: 'sync', component: SyncPage },
+  { path: '**', redirectTo: '' }
 ];

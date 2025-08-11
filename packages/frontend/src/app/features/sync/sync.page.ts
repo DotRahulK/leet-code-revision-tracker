@@ -6,6 +6,11 @@ import { MatButtonModule } from '@angular/material/button';
   selector: 'app-sync-page',
   standalone: true,
   imports: [MatCardModule, MatButtonModule],
-  template: `<mat-card><button mat-raised-button color="primary">Sync</button></mat-card>`
+  templateUrl: './sync.page.html',
+  styleUrls: ['./sync.page.scss']
 })
-export class SyncPage {}
+export class SyncPage {
+  sync() {
+    // placeholder for sync logic
+  }
+}
