@@ -1,33 +1,53 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
-import { NgFor } from '@angular/common';
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmDialogComponent } from '../../shared/ui/confirm-dialog/confirm-dialog.component';
-
-interface ListItem {
-  id: string;
-  name: string;
-}
+import { AsyncPipe, NgFor } from '@angular/common';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
+import { ListsFacade } from '../../core/lists.facade';
+import { UiList } from '../../core/models';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-lists-page',
   standalone: true,
-  imports: [MatListModule, MatButtonModule, NgFor],
+  imports: [
+    MatListModule,
+    MatButtonModule,
+    NgFor,
+    AsyncPipe,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
+  ],
   templateUrl: './lists.page.html',
   styleUrls: ['./lists.page.scss']
 })
-export class ListsPage {
-  lists: ListItem[] = [
-    { id: '1', name: 'Top 100' },
-    { id: '2', name: 'Blind 75' }
-  ];
+export class ListsPage implements OnInit {
+  lists$!: Observable<UiList[]>;
+  importUrl = '';
+  @ViewChild('importDialog') importDialog!: TemplateRef<any>;
 
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog, private facade: ListsFacade) {}
+
+  ngOnInit() {
+    this.load();
+  }
+
+  load() {
+    this.lists$ = this.facade.getLists();
+  }
 
   import() {
-    this.dialog.open(ConfirmDialogComponent, {
-      data: { title: 'Import List', message: 'Import not implemented.' }
+    this.importUrl = '';
+    const ref = this.dialog.open(this.importDialog);
+    ref.afterClosed().subscribe((url: string) => {
+      if (url) {
+        this.facade.importList(url).subscribe(() => this.load());
+      }
     });
   }
 }

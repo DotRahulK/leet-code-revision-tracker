@@ -1,6 +1,6 @@
 # Backend
 
-NestJS + TypeORM backend.
+NestJS + TypeORM backend. All routes are prefixed with `/api`.
 
 ## Environment
 

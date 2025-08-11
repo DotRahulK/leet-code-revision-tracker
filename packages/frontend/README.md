@@ -11,6 +11,8 @@ npm start
 
 `npm run api:gen` generates the OpenAPI client from `http://localhost:3000/api-json` into `src/app/api`.
 
+Facade services wrapping API calls live under `src/app/core`.
+
 Routes are defined in `src/app/app.routes.ts`.
 
 ### Pages

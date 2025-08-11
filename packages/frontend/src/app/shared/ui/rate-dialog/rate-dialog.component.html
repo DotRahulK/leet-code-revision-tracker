@@ -1,0 +1,7 @@
+<h1 mat-dialog-title>{{ data.title }}</h1>
+<div mat-dialog-content>
+  <p>Select recall quality:</p>
+</div>
+<div mat-dialog-actions>
+  <button mat-button *ngFor="let q of qualities" (click)="choose(q)">{{ q }}</button>
+</div>

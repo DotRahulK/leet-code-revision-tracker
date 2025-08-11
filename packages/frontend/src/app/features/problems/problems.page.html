@@ -11,7 +11,7 @@
   </mat-form-field>
   <button mat-button>Filter</button>
 </div>
-<table mat-table [dataSource]="data" class="problems-table">
+<table mat-table [dataSource]="(problems$ | async) ?? []" class="problems-table">
   <ng-container matColumnDef="title">
     <th mat-header-cell *matHeaderCellDef>Title</th>
     <td mat-cell *matCellDef="let row">{{ row.title }}</td>

@@ -2,7 +2,20 @@
   <button mat-raised-button color="primary" (click)="import()">Import List</button>
 </div>
 <mat-list>
-  <mat-list-item *ngFor="let list of lists">
+  <mat-list-item *ngFor="let list of (lists$ | async) ?? []">
     {{ list.name }}
   </mat-list-item>
 </mat-list>
+
+<ng-template #importDialog>
+  <h1 mat-dialog-title>Import List</h1>
+  <div mat-dialog-content>
+    <mat-form-field appearance="fill">
+      <input matInput placeholder="List URL or slug" [(ngModel)]="importUrl" />
+    </mat-form-field>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-button mat-dialog-close>Cancel</button>
+    <button mat-raised-button color="primary" [mat-dialog-close]="importUrl">Import</button>
+  </div>
+</ng-template>

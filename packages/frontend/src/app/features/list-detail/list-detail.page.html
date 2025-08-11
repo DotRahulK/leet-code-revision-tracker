@@ -1,4 +1,7 @@
-<table mat-table [dataSource]="data" class="list-table">
+<ng-container *ngIf="list$ | async as list">
+  <h2>{{ list.name }}</h2>
+</ng-container>
+<table mat-table [dataSource]="[]" class="list-table">
   <ng-container matColumnDef="title">
     <th mat-header-cell *matHeaderCellDef>Title</th>
     <td mat-cell *matCellDef="let row">{{ row.title }}</td>

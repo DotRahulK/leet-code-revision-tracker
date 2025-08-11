@@ -10,10 +10,11 @@ import { ImportListDto } from './dto/import-list.dto';
 export class LeetcodeController {
   constructor(private readonly service: LeetcodeService) {}
 
+  // Body is optional; defaults are sourced from environment config
   @Post('sync')
-  @ApiBody({ type: SyncDto })
-  sync(@Body() dto: SyncDto) {
-    return this.service.syncRecentAccepted(dto);
+  @ApiBody({ type: SyncDto, required: false })
+  sync(@Body() dto: SyncDto = {} as SyncDto) {
+    return this.service.syncRecentAccepted(dto ?? {});
   }
 
   @Post('list')
