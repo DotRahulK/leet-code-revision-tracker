@@ -5,6 +5,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   selector: 'app-loading-spinner',
   standalone: true,
   imports: [MatProgressSpinnerModule],
-  template: `<mat-progress-spinner mode="indeterminate"></mat-progress-spinner>`
+  templateUrl: './loading-spinner.component.html',
+  styleUrls: ['./loading-spinner.component.scss']
 })
 export class LoadingSpinnerComponent {}

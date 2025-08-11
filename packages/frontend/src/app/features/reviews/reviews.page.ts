@@ -1,74 +1,38 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
-import { NgFor, NgIf } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
+import { NgFor } from '@angular/common';
+import { DifficultyPillComponent } from '../../shared/ui/difficulty-pill/difficulty-pill.component';
+import { TagChipComponent } from '../../shared/ui/tag-chip/tag-chip.component';
+import { ConfirmDialogComponent } from '../../shared/ui/confirm-dialog/confirm-dialog.component';
 
-interface UserProblem {
-  id: string;
-  problem: { title: string; difficulty: string; slug: string };
+interface ReviewRow {
+  title: string;
+  tags: string[];
+  difficulty: string;
+  due: string;
 }
 
 @Component({
   selector: 'app-reviews-page',
   standalone: true,
-  imports: [MatTableModule, MatButtonModule, NgFor, NgIf],
-  template: `
-    <div *ngIf="items.length === 0">No pending reviews</div>
-    <table mat-table [dataSource]="items" *ngIf="items.length > 0">
-      <ng-container matColumnDef="title">
-        <th mat-header-cell *matHeaderCellDef>Problem</th>
-        <td mat-cell *matCellDef="let el">
-          {{ el.problem.title }} ({{ el.problem.difficulty }})
-        </td>
-      </ng-container>
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Score</th>
-        <td mat-cell *matCellDef="let el">
-          <button mat-button *ngFor="let q of scores" (click)="rate(el.id, q)">
-            {{ q }}
-          </button>
-        </td>
-      </ng-container>
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-    </table>
-    <div class="mt-4">
-      <p>Scoring guide:</p>
-      <ul>
-        <li *ngFor="let q of scores">{{ q }} - {{ scoreHelp[q] }}</li>
-      </ul>
-    </div>
-  `,
+  imports: [MatTableModule, MatButtonModule, NgFor, DifficultyPillComponent, TagChipComponent],
+  templateUrl: './reviews.page.html',
+  styleUrls: ['./reviews.page.scss']
 })
-export class ReviewsPage implements OnInit {
-  items: UserProblem[] = [];
-  displayedColumns = ['title', 'actions'];
-  scores = [0, 1, 2, 3, 4, 5];
-  scoreHelp: Record<number, string> = {
-    0: 'Complete blackout',
-    1: 'Incorrect solution',
-    2: 'Partial recall',
-    3: 'Solved with effort',
-    4: 'Correct with hesitation',
-    5: 'Perfect recall',
-  };
+export class ReviewsPage {
+  displayedColumns = ['title', 'tags', 'difficulty', 'due', 'actions'];
+  data: ReviewRow[] = [
+    { title: 'Two Sum', tags: ['array'], difficulty: 'Easy', due: '2024-01-01' },
+    { title: 'Binary Tree Paths', tags: ['tree'], difficulty: 'Medium', due: '2024-01-02' }
+  ];
 
-  constructor(private http: HttpClient) {}
+  constructor(private dialog: MatDialog) {}
 
-  ngOnInit() {
-    this.load();
-  }
-
-  load() {
-    this.http
-      .get<UserProblem[]>('/api/reviews/unscored')
-      .subscribe((res) => (this.items = res));
-  }
-
-  rate(id: string, quality: number) {
-    this.http.post(`/api/reviews/${id}`, { quality }).subscribe(() => {
-      this.items = this.items.filter((i) => i.id !== id);
+  rate(row: ReviewRow) {
+    this.dialog.open(ConfirmDialogComponent, {
+      data: { title: 'Rate Recall', message: `Mark ${row.title} as reviewed?` }
     });
   }
 }

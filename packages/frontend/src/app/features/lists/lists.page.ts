@@ -1,40 +1,33 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { NgFor } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../../shared/ui/confirm-dialog/confirm-dialog.component';
 
-interface ProblemList {
+interface ListItem {
   id: string;
   name: string;
-  scheduled: boolean;
 }
 
 @Component({
   selector: 'app-lists-page',
   standalone: true,
   imports: [MatListModule, MatButtonModule, NgFor],
-  template: `
-    <mat-list>
-      <mat-list-item *ngFor="let list of lists">
-        {{ list.name }}
-        <button mat-button (click)="schedule(list.id)">
-          {{ list.scheduled ? 'Scheduled' : 'Schedule' }}
-        </button>
-      </mat-list-item>
-    </mat-list>
-  `
+  templateUrl: './lists.page.html',
+  styleUrls: ['./lists.page.scss']
 })
-export class ListsPage implements OnInit {
-  lists: ProblemList[] = [];
-  constructor(private http: HttpClient) {}
-  ngOnInit() {
-    this.load();
-  }
-  load() {
-    this.http.get<ProblemList[]>('/api/lists').subscribe((res) => (this.lists = res));
-  }
-  schedule(id: string) {
-    this.http.post(`/api/lists/${id}/schedule`, {}).subscribe(() => this.load());
+export class ListsPage {
+  lists: ListItem[] = [
+    { id: '1', name: 'Top 100' },
+    { id: '2', name: 'Blind 75' }
+  ];
+
+  constructor(private dialog: MatDialog) {}
+
+  import() {
+    this.dialog.open(ConfirmDialogComponent, {
+      data: { title: 'Import List', message: 'Import not implemented.' }
+    });
   }
 }

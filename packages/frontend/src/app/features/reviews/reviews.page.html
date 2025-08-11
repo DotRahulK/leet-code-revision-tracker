@@ -1,0 +1,30 @@
+<table mat-table [dataSource]="data" class="reviews-table">
+  <ng-container matColumnDef="title">
+    <th mat-header-cell *matHeaderCellDef>Title</th>
+    <td mat-cell *matCellDef="let row">{{ row.title }}</td>
+  </ng-container>
+  <ng-container matColumnDef="tags">
+    <th mat-header-cell *matHeaderCellDef>Tags</th>
+    <td mat-cell *matCellDef="let row">
+      <app-tag-chip *ngFor="let t of row.tags" [tag]="t"></app-tag-chip>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="difficulty">
+    <th mat-header-cell *matHeaderCellDef>Difficulty</th>
+    <td mat-cell *matCellDef="let row">
+      <app-difficulty-pill [difficulty]="row.difficulty"></app-difficulty-pill>
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="due">
+    <th mat-header-cell *matHeaderCellDef>Due</th>
+    <td mat-cell *matCellDef="let row">{{ row.due }}</td>
+  </ng-container>
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef></th>
+    <td mat-cell *matCellDef="let row">
+      <button mat-button (click)="rate(row)">Rate</button>
+    </td>
+  </ng-container>
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+</table>
