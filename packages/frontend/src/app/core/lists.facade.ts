@@ -13,7 +13,7 @@ export class ListsFacade {
 
   getLists(): Observable<UiList[]> {
     this.loading.set(true);
-    return this.http.get<any[]>('/lists').pipe(
+    return this.http.get<any[]>('/api/lists').pipe(
       map(arr => arr.map(apiListToUi)),
       catchError(err => {
         this.toast.error('Failed to load lists');
@@ -25,7 +25,7 @@ export class ListsFacade {
 
   getList(id: string): Observable<UiList> {
     this.loading.set(true);
-    return this.http.get<any>(`/lists/${id}`).pipe(
+    return this.http.get<any>(`/api/lists/${id}`).pipe(
       map(apiListToUi),
       catchError(err => {
         this.toast.error('Failed to load list');
@@ -36,7 +36,7 @@ export class ListsFacade {
   }
 
   importList(list: string): Observable<UiList> {
-    return this.http.post<any>('/leetcode/list', { list }).pipe(
+    return this.http.post<any>('/api/leetcode/list', { list }).pipe(
       map(apiListToUi),
       catchError(err => {
         this.toast.error('Failed to import list');

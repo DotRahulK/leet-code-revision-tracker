@@ -13,7 +13,7 @@ export class ReviewsFacade {
 
   getDueReviews(): Observable<UiReview[]> {
     this.loading.set(true);
-    return this.http.get<any[]>('/reviews/today').pipe(
+    return this.http.get<any[]>('/api/reviews/today').pipe(
       map(arr => arr.map(apiReviewToUi)),
       catchError(err => {
         this.toast.error('Failed to load reviews');
@@ -24,7 +24,7 @@ export class ReviewsFacade {
   }
 
   rateRecall(id: string, quality: number): Observable<void> {
-    return this.http.post<void>(`/reviews/${id}`, { quality }).pipe(
+    return this.http.post<void>(`/api/reviews/${id}`, { quality }).pipe(
       catchError(err => {
         this.toast.error('Failed to rate review');
         return throwError(() => err);
@@ -33,7 +33,7 @@ export class ReviewsFacade {
   }
 
   updateNotes(id: string, notes: string): Observable<void> {
-    return this.http.patch<void>(`/user-problems/${id}/notes`, { notes }).pipe(
+    return this.http.patch<void>(`/api/user-problems/${id}/notes`, { notes }).pipe(
       catchError(err => {
         this.toast.error('Failed to save notes');
         return throwError(() => err);
@@ -42,7 +42,7 @@ export class ReviewsFacade {
   }
 
   updateCode(id: string, code: string): Observable<void> {
-    return this.http.patch<void>(`/user-problems/${id}/code`, { code }).pipe(
+    return this.http.patch<void>(`/api/user-problems/${id}/code`, { code }).pipe(
       catchError(err => {
         this.toast.error('Failed to save code');
         return throwError(() => err);

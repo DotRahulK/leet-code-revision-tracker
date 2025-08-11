@@ -21,7 +21,7 @@ describe('ProblemsFacade', () => {
     obs.subscribe(res => {
       expect(res[0].slug).toBe('two-sum');
     });
-    const req = http.expectOne('/problems');
+    const req = http.expectOne('/api/problems');
     req.flush([{ id: '1', slug: 'two-sum', title: 'Two Sum', difficulty: 'Easy', tags: [] }]);
   });
 });

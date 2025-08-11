@@ -13,7 +13,7 @@ export class ProblemsFacade {
 
   list(params: Record<string, any> = {}): Observable<UiProblem[]> {
     this.loading.set(true);
-    return this.http.get<any[]>('/problems', { params }).pipe(
+    return this.http.get<any[]>('/api/problems', { params }).pipe(
       map(arr => arr.map(apiProblemToUi)),
       catchError(err => {
         this.toast.error('Failed to load problems');
@@ -25,7 +25,7 @@ export class ProblemsFacade {
 
   getBySlug(slug: string): Observable<UiProblem> {
     this.loading.set(true);
-    return this.http.get<any>(`/problems/${slug}`).pipe(
+    return this.http.get<any>(`/api/problems/${slug}`).pipe(
       map(apiProblemToUi),
       catchError(err => {
         this.toast.error('Problem not found');

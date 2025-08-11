@@ -12,7 +12,7 @@ export class SyncFacade {
 
   syncRecent(params: { username?: string; limit?: number } = {}): Observable<SyncResult> {
     this.loading.set(true);
-    return this.http.post<SyncResult>('/leetcode/sync', params).pipe(
+    return this.http.post<SyncResult>('/api/leetcode/sync', params).pipe(
       catchError(err => {
         this.toast.error('Sync failed');
         return throwError(() => err);
