@@ -11,11 +11,14 @@ import { Observable } from 'rxjs';
 import { UiProblem } from '../../core/models';
 import { ProblemsFacade } from '../../core/problems.facade';
 import { ReviewsFacade } from '../../core/reviews.facade';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { RateDialogComponent } from '../../shared/ui/rate-dialog/rate-dialog.component';
 
 @Component({
   selector: 'app-problem-detail-page',
   standalone: true,
-  imports: [MatCardModule, MatTabsModule, MatInputModule, FormsModule, DifficultyPillComponent, TagChipComponent, NgFor, NgIf, AsyncPipe],
+  imports: [MatCardModule, MatTabsModule, MatInputModule, FormsModule, MatButtonModule, DifficultyPillComponent, TagChipComponent, NgFor, NgIf, AsyncPipe],
   templateUrl: './problem-detail.page.html',
   styleUrls: ['./problem-detail.page.scss']
 })
@@ -26,7 +29,8 @@ export class ProblemDetailPage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private problems: ProblemsFacade,
-    private reviews: ReviewsFacade
+    private reviews: ReviewsFacade,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -36,5 +40,16 @@ export class ProblemDetailPage implements OnInit {
 
   saveNotes(problemId: string) {
     this.reviews.updateNotes(problemId, this.notes).subscribe();
+  }
+
+  rate(problem: UiProblem) {
+    this.reviews.linkProblem(problem.id).subscribe(userProblemId => {
+      const ref = this.dialog.open(RateDialogComponent, { data: { title: problem.title } });
+      ref.afterClosed().subscribe(quality => {
+        if (quality != null) {
+          this.reviews.rateRecall(userProblemId, quality).subscribe();
+        }
+      });
+    });
   }
 }

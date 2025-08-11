@@ -6,6 +6,8 @@
 | GET | `/api/problems/:slug` | – | `Problem` | ProblemDetailPage |
 | GET | `/api/reviews/today` | `userId?` | `UserProblem[]` | ReviewsPage, DashboardPage |
 | POST | `/api/reviews/:id` | `{ quality: number }` | – | ReviewsPage |
+| GET | `/api/reviews/unscored` | `userId?` | `UserProblem[]` | ReviewsPage |
+| POST | `/api/user-problems` | `{ problemId: string }` | `UserProblem` | ProblemDetailPage |
 | PATCH | `/api/user-problems/:id/notes` | `{ notes: string }` | – | ProblemDetailPage |
 | PATCH | `/api/user-problems/:id/code` | `{ code: string }` | – | ProblemDetailPage |
 | GET | `/api/lists` | – | `ProblemList[]` | ListsPage, DashboardPage |

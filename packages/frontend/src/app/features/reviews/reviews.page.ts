@@ -5,10 +5,10 @@ import { MatDialog } from '@angular/material/dialog';
 import { AsyncPipe, NgFor } from '@angular/common';
 import { DifficultyPillComponent } from '../../shared/ui/difficulty-pill/difficulty-pill.component';
 import { TagChipComponent } from '../../shared/ui/tag-chip/tag-chip.component';
-import { ConfirmDialogComponent } from '../../shared/ui/confirm-dialog/confirm-dialog.component';
 import { ReviewsFacade } from '../../core/reviews.facade';
 import { UiReview } from '../../core/models';
 import { Observable } from 'rxjs';
+import { RateDialogComponent } from '../../shared/ui/rate-dialog/rate-dialog.component';
 
 @Component({
   selector: 'app-reviews-page',
@@ -20,6 +20,7 @@ import { Observable } from 'rxjs';
 export class ReviewsPage implements OnInit {
   displayedColumns = ['title', 'tags', 'difficulty', 'due', 'actions'];
   reviews$!: Observable<UiReview[]>;
+  unscored$!: Observable<UiReview[]>;
 
   constructor(private dialog: MatDialog, private facade: ReviewsFacade) {}
 
@@ -29,15 +30,16 @@ export class ReviewsPage implements OnInit {
 
   load() {
     this.reviews$ = this.facade.getDueReviews();
+    this.unscored$ = this.facade.getUnscored();
   }
 
   rate(row: UiReview) {
-    const ref = this.dialog.open(ConfirmDialogComponent, {
-      data: { title: 'Rate Recall', message: `Mark ${row.problem.title} as reviewed?` }
+    const ref = this.dialog.open(RateDialogComponent, {
+      data: { title: row.problem.title }
     });
-    ref.afterClosed().subscribe(ok => {
-      if (ok) {
-        this.facade.rateRecall(row.id, 5).subscribe(() => this.load());
+    ref.afterClosed().subscribe(quality => {
+      if (quality != null) {
+        this.facade.rateRecall(row.id, quality).subscribe(() => this.load());
       }
     });
   }
