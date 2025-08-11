@@ -1,19 +1,17 @@
 @use '@angular/material' as mat;
 
-$white-primary: mat.$indigo-palette;
-$white-theme: mat.define-theme((
+$white-primary: mat.define-palette(mat.$indigo-palette);
+$white-theme: mat.define-light-theme((
   color: (
-    theme-type: light,
-    primary: mat.define-palette($white-primary)
+    primary: $white-primary
   ),
   density: 0,
 ));
 
-$dark-primary: mat.$blue-palette;
-$high-contrast-dark-theme: mat.define-theme((
+$dark-primary: mat.define-palette(mat.$blue-palette);
+$high-contrast-dark-theme: mat.define-dark-theme((
   color: (
-    theme-type: dark,
-    primary: mat.define-palette($dark-primary)
+    primary: $dark-primary
   ),
   density: 0,
 ));
