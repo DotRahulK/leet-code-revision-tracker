@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { NgFor } from '@angular/common';
@@ -12,14 +12,8 @@ import { NgFor } from '@angular/common';
 })
 export class RateDialogComponent {
   qualities = [0, 1, 2, 3, 4, 5];
-  data: { title: string };
-
-  constructor(
-    private ref: MatDialogRef<RateDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) data: { title: string }
-  ) {
-    this.data = data;
-  }
+  private ref = inject(MatDialogRef<RateDialogComponent>);
+  data = inject<{ title: string }>(MAT_DIALOG_DATA);
 
   choose(q: number) {
     this.ref.close(q);
