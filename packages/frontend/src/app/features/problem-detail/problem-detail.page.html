@@ -1,20 +1,20 @@
-<mat-card>
-  <mat-card-title>{{ title }}</mat-card-title>
-  <mat-card-subtitle>
-    <app-difficulty-pill [difficulty]="difficulty"></app-difficulty-pill>
-    <app-tag-chip *ngFor="let t of tags" [tag]="t"></app-tag-chip>
-  </mat-card-subtitle>
-  <mat-tab-group>
-    <mat-tab label="Description">
-      <div class="pad">{{ description }}</div>
-    </mat-tab>
-    <mat-tab label="Code">
-      <pre class="pad">{{ code }}</pre>
-    </mat-tab>
-    <mat-tab label="Notes">
-      <div class="pad">
-        <textarea matInput [(ngModel)]="notes" placeholder="Notes"></textarea>
-      </div>
-    </mat-tab>
-  </mat-tab-group>
-</mat-card>
+<ng-container *ngIf="problem$ | async as problem">
+  <mat-card>
+    <mat-card-title>{{ problem.title }}</mat-card-title>
+    <mat-card-subtitle>
+      <app-difficulty-pill [difficulty]="problem.difficulty"></app-difficulty-pill>
+      <app-tag-chip *ngFor="let t of problem.tags" [tag]="t"></app-tag-chip>
+    </mat-card-subtitle>
+    <mat-tab-group>
+      <mat-tab label="Description">
+        <div class="pad">{{ problem.description }}</div>
+      </mat-tab>
+      <mat-tab label="Notes">
+        <div class="pad">
+          <textarea matInput [(ngModel)]="notes" placeholder="Notes"></textarea>
+          <button mat-button (click)="saveNotes(problem.id)">Save</button>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card>
+</ng-container>

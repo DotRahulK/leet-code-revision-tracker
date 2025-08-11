@@ -2,7 +2,7 @@
   <button mat-raised-button color="primary" (click)="import()">Import List</button>
 </div>
 <mat-list>
-  <mat-list-item *ngFor="let list of lists">
+  <mat-list-item *ngFor="let list of (lists$ | async) ?? []">
     {{ list.name }}
   </mat-list-item>
 </mat-list>
