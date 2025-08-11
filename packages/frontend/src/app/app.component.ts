@@ -5,11 +5,21 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { ThemeToggleComponent } from './core/theme-toggle.component';
+import { ThemeService } from './core/theme.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, MatSidenavModule, MatToolbarModule, MatListModule, MatIconModule, MatButtonModule],
+  imports: [
+    RouterOutlet,
+    MatSidenavModule,
+    MatToolbarModule,
+    MatListModule,
+    MatIconModule,
+    MatButtonModule,
+    ThemeToggleComponent,
+  ],
   template: `
   <mat-sidenav-container class="app-container">
     <mat-sidenav #sidenav mode="side" opened>
@@ -28,6 +38,7 @@ import { MatButtonModule } from '@angular/material/button';
           <mat-icon>menu</mat-icon>
         </button>
         <span>LeetCode Tracker</span>
+        <app-theme-toggle></app-theme-toggle>
       </mat-toolbar>
       <div class="content">
         <router-outlet></router-outlet>
@@ -40,4 +51,6 @@ import { MatButtonModule } from '@angular/material/button';
     .content { padding: 1rem; }
   `]
 })
-export class AppComponent {}
+export class AppComponent {
+  constructor(private theme: ThemeService) {}
+}

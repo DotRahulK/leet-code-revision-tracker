@@ -21,4 +21,8 @@ npm run dev
 - `npm run format` – format source files
 - `npm run typecheck` – run TypeScript type checks
 
+### Theme toggle
+
+The frontend includes a theme toggle in the toolbar that switches between a white theme and a high-contrast dark theme. The selected theme is saved to `localStorage`.
+
 See `packages/backend` and `packages/frontend` for package-specific documentation.

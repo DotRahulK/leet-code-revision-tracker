@@ -6,7 +6,8 @@
     "setup": "npm i",
     "start": "ng serve --port 4200",
     "build": "npm run api:gen && ng build",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@angular/animations": "^17.3.0",
@@ -30,6 +31,7 @@
     "@angular/cli": "^17.3.0",
     "@angular/compiler-cli": "^20.1.6",
     "ng-openapi-gen": "^0.23.0",
-    "typescript": "5.4.5"
+    "typescript": "5.4.5",
+    "vitest": "^1.3.1"
   }
 }
