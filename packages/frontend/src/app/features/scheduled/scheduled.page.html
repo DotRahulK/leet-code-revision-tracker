@@ -1,0 +1,6 @@
+<mat-list>
+  <mat-list-item *ngFor="let item of items$ | async; trackBy: trackById">
+    <div matListItemTitle>{{ item.problem.title }}</div>
+    <div matListItemLine>{{ item.dueAt | date:'mediumDate' }} - {{ item.type }}</div>
+  </mat-list-item>
+</mat-list>

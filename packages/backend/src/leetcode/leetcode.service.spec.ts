@@ -4,6 +4,10 @@ import { LeetcodeClient } from './leetcode.client';
 import { ProblemsService } from '../problems/problems.service';
 import { UserProblemsService } from '../user-problems/user-problems.service';
 import { LEETCODE_CONFIG } from './leetcode.config';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { ProblemList } from '../problem-lists/problem-list.entity';
+import { ProblemListItem } from '../problem-list-items/problem-list-item.entity';
+import { HttpService } from '@nestjs/axios';
 
 describe('LeetcodeService', () => {
   let service: LeetcodeService;
@@ -23,6 +27,9 @@ describe('LeetcodeService', () => {
         { provide: ProblemsService, useValue: problems },
         { provide: UserProblemsService, useValue: userProblems },
         { provide: LEETCODE_CONFIG, useValue: { username: 'me', pageSize: 20 } },
+        { provide: getRepositoryToken(ProblemList), useValue: {} },
+        { provide: getRepositoryToken(ProblemListItem), useValue: {} },
+        { provide: HttpService, useValue: { post: jest.fn() } },
       ],
     }).compile();
 

@@ -9,3 +9,21 @@
     </mat-card-header>
   </mat-card>
 </section>
+
+<section class="due" *ngIf="dueToday.length">
+  <h2>Due Today</h2>
+  <mat-list>
+    <mat-list-item *ngFor="let item of dueToday; trackBy: trackByItem">
+      {{ item.problem.title }}
+    </mat-list-item>
+  </mat-list>
+</section>
+
+<section class="upcoming" *ngIf="upcoming.length">
+  <h2>Upcoming</h2>
+  <mat-list>
+    <mat-list-item *ngFor="let item of upcoming; trackBy: trackByItem">
+      {{ item.problem.title }} - {{ item.dueAt | date:'shortDate' }}
+    </mat-list-item>
+  </mat-list>
+</section>

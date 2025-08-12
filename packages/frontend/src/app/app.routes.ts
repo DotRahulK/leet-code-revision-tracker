@@ -6,6 +6,7 @@ import { ProblemDetailPage } from './features/problem-detail/problem-detail.page
 import { ListsPage } from './features/lists/lists.page';
 import { ListDetailPage } from './features/list-detail/list-detail.page';
 import { SyncPage } from './features/sync/sync.page';
+import { ScheduledPage } from './features/scheduled/scheduled.page';
 
 export const appRoutes: Routes = [
   { path: '', component: DashboardPage },
@@ -14,6 +15,7 @@ export const appRoutes: Routes = [
   { path: 'problems/:slug', component: ProblemDetailPage },
   { path: 'lists', component: ListsPage },
   { path: 'lists/:id', component: ListDetailPage },
+  { path: 'scheduled', component: ScheduledPage },
   { path: 'sync', component: SyncPage },
   { path: '**', redirectTo: '' }
 ];

@@ -21,8 +21,13 @@
   </a>
 
   <a mat-list-item routerLink="/lists" routerLinkActive="active" (click)="navigate.emit()">
-    <mat-icon matListIcon aria-hidden="true">playlist_add_check</mat-icon>
-    <span class="label">Lists</span>
+    <mat-icon matListIcon aria-hidden="true">playlist_add</mat-icon>
+    <span class="label">Custom Lists</span>
+  </a>
+
+  <a mat-list-item routerLink="/scheduled" routerLinkActive="active" (click)="navigate.emit()">
+    <mat-icon matListIcon aria-hidden="true">event</mat-icon>
+    <span class="label">Scheduled</span>
   </a>
 
   <a mat-list-item routerLink="/sync" routerLinkActive="active" (click)="navigate.emit()">

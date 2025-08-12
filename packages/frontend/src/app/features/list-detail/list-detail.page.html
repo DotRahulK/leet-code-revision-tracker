@@ -1,5 +1,13 @@
 <ng-container *ngIf="list$ | async as list; else loading">
   <h2>{{ list.name }}</h2>
+  <button mat-raised-button color="primary" (click)="scheduleList(list.id)">Schedule List</button>
+  <div class="add-problem">
+    <mat-form-field appearance="outline">
+      <mat-label>Problem ID</mat-label>
+      <input matInput [(ngModel)]="newProblemId" />
+    </mat-form-field>
+    <button mat-stroked-button color="primary" (click)="addProblem(list.id)">Add Problem</button>
+  </div>
 
   <table
     mat-table
