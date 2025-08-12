@@ -21,6 +21,8 @@ Routes are defined in `src/app/app.routes.ts`.
 - `/reviews` spaced-repetition reviews
 - `/problems` problem browser
 - `/lists` saved lists
+- `/lists/custom` manage custom lists and schedule them for upcoming practice
+- `/scheduled` view items planned for Next-Up or due for revision
 - `/sync` trigger LeetCode sync
 
 ### Theme Toggle
