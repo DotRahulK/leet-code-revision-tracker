@@ -1,29 +1,34 @@
 @use '@angular/material' as mat;
 
+@include mat.core();
+
+/* define themes */
 $white-primary: mat.define-palette(mat.$indigo-palette);
-$white-accent: mat.define-palette(mat.$pink-palette);
+$white-accent:  mat.define-palette(mat.$pink-palette);
 $white-theme: mat.define-light-theme((
-  color: (
-    primary: $white-primary,
-    accent: $white-accent,
-  ),
+  color: (primary: $white-primary, accent: $white-accent),
   density: 0,
 ));
 
 $dark-primary: mat.define-palette(mat.$blue-palette);
-$dark-accent: mat.define-palette(mat.$blue-grey-palette);
+$dark-accent:  mat.define-palette(mat.$blue-grey-palette);
 $high-contrast-dark-theme: mat.define-dark-theme((
-  color: (
-    primary: $dark-primary,
-    accent: $dark-accent,
-  ),
+  color: (primary: $dark-primary, accent: $dark-accent),
   density: 0,
 ));
 
+/* GLOBAL DEFAULT = HIGH CONTRAST DARK */
+:root {
+  @include mat.all-component-themes($high-contrast-dark-theme);
+  @include mat.all-component-typographies($white-theme); /* typography once */
+}
+
+/* Optional: allow toggling to LIGHT by adding .theme-white to <body> */
 .theme-white {
   @include mat.all-component-themes($white-theme);
 }
 
-.theme-high-contrast-dark {
-  @include mat.all-component-themes($high-contrast-dark-theme);
-}
+/* Native widgets + surfaces */
+:root { color-scheme: dark; }
+html, body, app-root { min-height: 100%; }
+body { background: #121212; } /* dark surface baseline */

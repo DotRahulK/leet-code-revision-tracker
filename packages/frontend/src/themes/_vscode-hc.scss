@@ -1,0 +1,124 @@
+/* VS Code–style High Contrast skin (scoped) */
+.vscode-hc {
+  /* --- Core palette (VS Code vibes) --- */
+  --vscode-bg:        #1e1e1e;  /* editor */
+  --vscode-surface:   #252526;  /* sidebar/drawer */
+  --vscode-header:    #3c3c3c;  /* titlebar/toolbar */
+  --vscode-border:    #3c3c3c;
+  --vscode-hover:     #2a2d2e;
+  --vscode-active:    #37373d;
+  --vscode-primary:   #0e639c;  /* VS Code blue */
+  --vscode-focus:     #007acc;  /* outline */
+  --vscode-warn:      #cca700;
+  --vscode-error:     #f48771;
+  --vscode-ok:        #89d185;
+  --vscode-text:      #e6e6e6;
+  --vscode-dim:       #b3b3b3;
+
+  /* Backgrounds */
+  body { background: var(--vscode-bg); color: var(--vscode-text); }
+
+  /* Toolbar / header */
+  app-toolbar, mat-toolbar.mdc-top-app-bar, mat-toolbar {
+    background: var(--vscode-header) !important;
+    color: var(--vscode-text) !important;
+    border-bottom: 1px solid var(--vscode-border);
+  }
+
+  /* Sidenav / nav list */
+  mat-sidenav {
+    background: var(--vscode-surface) !important;
+    color: var(--vscode-text);
+    border-right: 1px solid var(--vscode-border);
+  }
+  mat-nav-list { padding-top: 4px; }
+  a.mat-mdc-list-item {
+    color: var(--vscode-text);
+    border-left: 3px solid transparent;
+    &:hover { background: var(--vscode-hover); }
+    &.active {
+      background: var(--vscode-active);
+      border-left-color: var(--vscode-primary);
+      font-weight: 600;
+    }
+  }
+  mat-icon { color: var(--vscode-dim); }
+
+  /* Cards / panels */
+  mat-card.mdc-card, .mat-mdc-card {
+    background: var(--vscode-bg);
+    color: var(--vscode-text);
+    border: 1px solid var(--vscode-border);
+    border-radius: 10px;
+  }
+  .mat-mdc-card-header { padding: 12px 16px; }
+
+  /* Buttons */
+  .mat-mdc-raised-button, .mat-mdc-unelevated-button, .mat-mdc-fab, .mat-mdc-mini-fab {
+    background: var(--vscode-primary) !important;
+    color: #fff !important;
+  }
+  .mat-mdc-outlined-button {
+    border-color: var(--vscode-border) !important;
+    color: var(--vscode-text) !important;
+  }
+  .mat-mdc-button:not(.mat-mdc-unelevated-button):not(.mat-mdc-raised-button) {
+    color: var(--vscode-primary);
+  }
+
+  /* Inputs / form fields */
+  .mat-mdc-form-field-subscript-wrapper { color: var(--vscode-dim); }
+  .mdc-text-field--filled {
+    background: var(--vscode-bg) !important;
+  }
+  .mdc-text-field, .mdc-text-field--outlined {
+    color: var(--vscode-text);
+    --mdc-outlined-text-field-outline-color: var(--vscode-border);
+    --mdc-outlined-text-field-hover-outline-color: var(--vscode-text);
+    --mdc-outlined-text-field-focus-outline-color: var(--vscode-primary);
+  }
+
+  /* Tables */
+  .mat-mdc-table {
+    background: var(--vscode-bg);
+    color: var(--vscode-text);
+    border: 1px solid var(--vscode-border);
+  }
+  .mat-mdc-header-row, .mat-mdc-row {
+    border-bottom: 1px solid var(--vscode-border);
+  }
+  .mat-mdc-row:hover { background: var(--vscode-hover); }
+
+  /* Chips / badges */
+  .mat-mdc-chip {
+    background: var(--vscode-active) !important;
+    color: var(--vscode-text) !important;
+    border: 1px solid var(--vscode-border);
+  }
+
+  /* Paginator / toolbars in content */
+  .mat-mdc-paginator, .mat-mdc-toolbar {
+    background: var(--vscode-header);
+    color: var(--vscode-text);
+    border-top: 1px solid var(--vscode-border);
+    border-bottom: 1px solid var(--vscode-border);
+  }
+
+  /* Focus visibility: strong high-contrast ring */
+  :focus-visible {
+    outline: 2px solid var(--vscode-focus) !important;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Scrollbar (WebKit-based browsers) */
+  *::-webkit-scrollbar        { width: 12px; height: 12px; }
+  *::-webkit-scrollbar-track  { background: var(--vscode-bg); }
+  *::-webkit-scrollbar-thumb  { background: #454545; border-radius: 8px; border: 2px solid var(--vscode-bg); }
+  *::-webkit-scrollbar-thumb:hover { background: #5a5a5a; }
+
+  /* Density (slightly tighter like editors) */
+  .mat-mdc-form-field, .mat-mdc-button-base, .mat-mdc-list-item {
+    --mdc-typography-button-letter-spacing: .02em;
+  }
+}

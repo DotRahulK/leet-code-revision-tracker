@@ -1,11 +1,62 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>LeetCode Revision Tracker</title>
-  <base href="/">
-</head>
-<body>
-  <app-root></app-root>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>LeetCode Revision Tracker</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Optional: browser UI color (updates after app starts) -->
+    <meta name="theme-color" content="#121212" />
+
+    <!-- Material Icons (ligatures for <mat-icon>home</mat-icon>) -->
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <!-- Pre-apply theme classes BEFORE Angular bootstraps -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('theme');
+          var useDark = saved
+            ? saved === 'high-contrast-dark'
+            : window.matchMedia &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+          var cls = useDark
+            ? ['theme-high-contrast-dark', 'vscode-hc']
+            : ['theme-white'];
+
+          // Apply to <html> immediately (no layout shift)
+          document.documentElement.classList.add.apply(
+            document.documentElement.classList,
+            cls
+          );
+
+          // Apply to <body> as soon as it exists
+          document.addEventListener('DOMContentLoaded', function () {
+            document.body.classList.add.apply(document.body.classList, cls);
+          });
+
+          // Prevent white flash in dark mode
+          if (useDark) {
+            var s = document.createElement('style');
+            s.textContent = 'body{background:#1e1e1e;color-scheme:dark}';
+            document.head.appendChild(s);
+          } else {
+            var s2 = document.createElement('style');
+            s2.textContent = 'body{color-scheme:light}';
+            document.head.appendChild(s2);
+          }
+        } catch (e) {
+          /* noop */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
 </html>

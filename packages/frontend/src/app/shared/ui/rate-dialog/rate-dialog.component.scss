@@ -1,1 +1,19 @@
-/* empty */
+.content { display: grid; gap: 12px; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+button[mat-raised-button] {
+  justify-content: flex-start;
+  gap: 8px;
+  text-transform: none;
+}
+
+.icon { opacity: 0.9; }
+.value { font-weight: 700; width: 1.5rem; text-align: center; }
+.label { opacity: 0.9; }
+
+.hint { opacity: 0.75; margin: 4px 2px 0; font-size: 0.85rem; }
