@@ -1,6 +1,7 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, ViewChild, inject } from '@angular/core';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
+import { AsyncPipe } from '@angular/common';
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { BreakpointObserver } from '@angular/cdk/layout';
@@ -16,6 +17,7 @@ import { AppSidenavComponent } from '../shared/ui/app-sidenav.component';
     RouterOutlet,
     RouterLink,
     RouterLinkActive,
+    AsyncPipe,
     MatSidenavModule,
     MatSnackBarModule,
     AppToolbarComponent,
@@ -35,14 +37,14 @@ import { AppSidenavComponent } from '../shared/ui/app-sidenav.component';
 export class AppShellComponent {
   @ViewChild('drawer') drawer!: MatSidenav;
 
+  private readonly breakpoint = inject(BreakpointObserver);
+  private readonly router = inject(Router);
+
   readonly isHandset$ = this.breakpoint
     .observe('(max-width: 768px)')
     .pipe(map(result => result.matches), shareReplay());
 
-  constructor(
-    private breakpoint: BreakpointObserver,
-    private router: Router
-  ) {
+  constructor() {
     this.router.events
       .pipe(
         filter(event => event instanceof NavigationEnd),
