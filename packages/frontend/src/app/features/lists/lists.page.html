@@ -1,21 +1,81 @@
-<div class="actions">
-  <button mat-raised-button color="primary" (click)="import()">Import List</button>
-</div>
-<mat-list>
-  <mat-list-item *ngFor="let list of (lists$ | async) ?? []">
-    {{ list.name }}
-  </mat-list-item>
-</mat-list>
+<!-- Busy indicator -->
+<mat-progress-bar *ngIf="isBusy" mode="indeterminate"></mat-progress-bar>
 
+<div class="actions">
+  <button mat-raised-button color="primary" (click)="openImportDialog()">
+    Import List
+  </button>
+</div>
+
+<!-- Lists -->
+<ng-container *ngIf="(lists$ | async) as lists; else loading">
+  <mat-list *ngIf="lists.length; else empty">
+    <mat-list-item
+      *ngFor="let list of lists; trackBy: trackById"
+      [routerLink]="['/lists', list.id]"
+    >
+      <mat-icon matListItemIcon aria-hidden="true">list</mat-icon>
+      <div matListItemTitle>{{ list.name }}</div>
+      <div matListItemLine *ngIf="list.description">{{ list.description }}</div>
+      <mat-icon matListItemMeta aria-hidden="true">chevron_right</mat-icon>
+    </mat-list-item>
+  </mat-list>
+</ng-container>
+
+<ng-template #loading>
+  <mat-list>
+    <mat-list-item><div class="shim"></div></mat-list-item>
+    <mat-list-item><div class="shim"></div></mat-list-item>
+    <mat-list-item><div class="shim"></div></mat-list-item>
+  </mat-list>
+</ng-template>
+
+<ng-template #empty>
+  <div class="empty">
+    <mat-icon aria-hidden="true">inbox</mat-icon>
+    <p>No lists yet.</p>
+    <button mat-stroked-button color="primary" (click)="openImportDialog()">
+      Import your first list
+    </button>
+  </div>
+</ng-template>
+
+<!-- Import dialog template -->
 <ng-template #importDialog>
   <h1 mat-dialog-title>Import List</h1>
-  <div mat-dialog-content>
-    <mat-form-field appearance="fill">
-      <input matInput placeholder="List URL or slug" [(ngModel)]="importUrl" />
-    </mat-form-field>
-  </div>
-  <div mat-dialog-actions>
-    <button mat-button mat-dialog-close>Cancel</button>
-    <button mat-raised-button color="primary" [mat-dialog-close]="importUrl">Import</button>
-  </div>
+
+  <form (ngSubmit)="confirmImport()" #f="ngForm">
+    <div mat-dialog-content>
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>List URL or slug</mat-label>
+        <input
+          matInput
+          name="importUrl"
+          [(ngModel)]="importUrl"
+          required
+          [pattern]="importPattern"
+          placeholder="e.g. https://… or my/fav-list"
+          (keyup.enter)="confirmImport()"
+          #urlCtrl="ngModel"
+          autofocus
+        />
+        <mat-error *ngIf="urlCtrl.invalid && urlCtrl.touched">
+          Please enter a valid URL or slug.
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <div mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close type="button">Cancel</button>
+      <button
+        mat-raised-button
+        color="primary"
+        [disabled]="!isValidImport(importUrl)"
+        [mat-dialog-close]="importUrl"
+        type="submit"
+      >
+        Import
+      </button>
+    </div>
+  </form>
 </ng-template>

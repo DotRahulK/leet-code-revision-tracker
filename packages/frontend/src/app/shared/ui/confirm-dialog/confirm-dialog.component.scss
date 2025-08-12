@@ -1,1 +1,18 @@
-/* dialog styles */
+:host {
+  display: block;
+  max-width: 520px; /* dialog width can also be set via open() config */
+}
+
+h1[mat-dialog-title] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &.warn .icon {
+    color: var(--mat-sys-error, #f44336);
+  }
+}
+
+.content {
+  white-space: pre-wrap; /* keep \n line breaks readable */
+}

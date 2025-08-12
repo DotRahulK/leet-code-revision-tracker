@@ -1,31 +1,49 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
 import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { NgFor } from '@angular/common';
 import { ReviewsFacade } from '../../core/reviews.facade';
 import { ListsFacade } from '../../core/lists.facade';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+type Stat = { key: 'solved' | 'due' | 'over' | 'lists'; label: string; value: number; icon: string };
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [MatCardModule, NgFor],
+  imports: [MatCardModule, MatIconModule, NgFor],
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss']
 })
 export class DashboardPage implements OnInit {
-  stats = [
-    { label: 'Solved', value: 0 },
-    { label: 'Due Today', value: 0 },
-    { label: 'Overdue', value: 0 },
-    { label: 'Lists', value: 0 }
+  private readonly destroyRef = inject(DestroyRef);
+
+  stats: Stat[] = [
+    { key: 'solved', label: 'Solved',     value: 0, icon: 'task_alt' },
+    { key: 'due',    label: 'Due Today',  value: 0, icon: 'schedule' },
+    { key: 'over',   label: 'Overdue',    value: 0, icon: 'warning' },
+    { key: 'lists',  label: 'Lists',      value: 0, icon: 'list_alt' }
   ];
 
   constructor(private reviews: ReviewsFacade, private lists: ListsFacade) {}
 
   ngOnInit() {
-    this.reviews.getDueReviews().subscribe(res => {
-      this.stats[1].value = res.length;
-      this.stats[2].value = res.filter(r => r.overdue).length;
-    });
-    this.lists.getLists().subscribe(res => (this.stats[3].value = res.length));
+    this.reviews.getDueReviews()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(res => {
+        const arr = res ?? [];
+        this.stats[1].value = arr.length;                            // Due Today
+        this.stats[2].value = arr.filter(r => (r as any)?.overdue).length; // Overdue
+      });
+
+    this.lists.getLists()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(res => {
+        this.stats[3].value = (res ?? []).length; // Lists
+      });
+
+    // TODO: when you have a solved-count source, set this.stats[0].value here.
   }
+
+  trackByLabel = (_: number, s: Stat) => s.label;
 }

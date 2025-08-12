@@ -1,3 +1,33 @@
+.section { margin-block: 16px 28px; }
+
 .reviews-table {
   width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.no-data .no-data-cell {
+  text-align: center;
+  padding: 16px;
+  opacity: 0.8;
+}
+
+/* Controls row */
+.controls {
+  display: grid;
+  grid-template-columns: 1fr minmax(220px, 320px) auto;
+  gap: 12px;
+  align-items: center;
+  margin: 8px 0 14px;
+
+  .search { width: 100%; }
+  .tags   { width: 100%; }
+  .clear  { white-space: nowrap; }
+}
+
+@media (max-width: 720px) {
+  .controls {
+    grid-template-columns: 1fr;
+    .clear { justify-self: start; }
+  }
 }

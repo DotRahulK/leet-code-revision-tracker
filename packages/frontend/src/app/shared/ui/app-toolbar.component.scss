@@ -1,5 +1,21 @@
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 10; /* stay above content */
+}
+
+mat-toolbar {
+  /* ensure it spans full width and sticks smoothly */
+  width: 100%;
+}
+
 .title {
   margin-left: 0.5rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .spacer {

@@ -1,6 +1,11 @@
-<div class="stats">
-  <mat-card *ngFor="let s of stats">
-    <mat-card-title>{{ s.label }}</mat-card-title>
-    <mat-card-content>{{ s.value }}</mat-card-content>
+<section class="stats">
+  <mat-card class="stat" *ngFor="let s of stats; trackBy: trackByLabel" appearance="outlined">
+    <mat-card-header>
+      <mat-icon class="avatar" aria-hidden="true">{{ s.icon }}</mat-icon>
+      <div class="titles">
+        <mat-card-subtitle>{{ s.label }}</mat-card-subtitle>
+        <mat-card-title>{{ s.value }}</mat-card-title>
+      </div>
+    </mat-card-header>
   </mat-card>
-</div>
+</section>

@@ -1,67 +1,183 @@
-<section>
-  <h2>Unscored</h2>
-  <table mat-table [dataSource]="(unscored$ | async) ?? []" class="reviews-table">
+<!-- 1) DUE REVIEWS FIRST -->
+<section class="section">
+  <h2>Due Reviews</h2>
+
+  <table
+    mat-table
+    [dataSource]="(reviews$ | async) ?? []"
+    class="reviews-table"
+    aria-label="Due reviews"
+  >
+    <!-- Title -->
     <ng-container matColumnDef="title">
-      <th mat-header-cell *matHeaderCellDef>Title</th>
+      <th mat-header-cell *matHeaderCellDef> Title </th>
       <td mat-cell *matCellDef="let row">{{ row.problem.title }}</td>
     </ng-container>
+
+    <!-- Tags -->
     <ng-container matColumnDef="tags">
-      <th mat-header-cell *matHeaderCellDef>Tags</th>
+      <th mat-header-cell *matHeaderCellDef> Tags </th>
       <td mat-cell *matCellDef="let row">
-        <app-tag-chip *ngFor="let t of row.problem.tags" [tag]="t"></app-tag-chip>
+        <app-tag-chip
+          *ngFor="let t of row.problem.tags; trackBy: trackByTag"
+          [tag]="t"
+        ></app-tag-chip>
       </td>
     </ng-container>
+
+    <!-- Difficulty -->
     <ng-container matColumnDef="difficulty">
-      <th mat-header-cell *matHeaderCellDef>Difficulty</th>
+      <th mat-header-cell *matHeaderCellDef> Difficulty </th>
       <td mat-cell *matCellDef="let row">
-        <app-difficulty-pill [difficulty]="row.problem.difficulty"></app-difficulty-pill>
+        <app-difficulty-pill
+          [difficulty]="row.problem.difficulty"
+        ></app-difficulty-pill>
       </td>
     </ng-container>
+
+    <!-- Due -->
     <ng-container matColumnDef="due">
-      <th mat-header-cell *matHeaderCellDef>Due</th>
-      <td mat-cell *matCellDef="let row">—</td>
+      <th mat-header-cell *matHeaderCellDef> Due </th>
+      <td mat-cell *matCellDef="let row">
+        {{ row.nextReviewAt | date: 'shortDate' }}
+      </td>
     </ng-container>
+
+    <!-- Actions -->
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let row">
         <button mat-button (click)="rate(row)">Rate</button>
       </td>
     </ng-container>
+
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: displayedColumns; trackBy: trackById"
+    ></tr>
+
+    <tr class="no-data" mat-row *matNoDataRow>
+      <td class="no-data-cell" [attr.colspan]="displayedColumns.length">
+        No reviews due — nice!
+      </td>
+    </tr>
   </table>
 </section>
 
-<section>
-  <h2>Due Reviews</h2>
-  <table mat-table [dataSource]="(reviews$ | async) ?? []" class="reviews-table">
+<!-- 2) UNSCORED WITH CONTROLS + SORT + PAGINATION -->
+<section class="section">
+  <h2>Unscored</h2>
+
+  <!-- Controls -->
+  <div class="controls">
+    <mat-form-field appearance="outline" class="search">
+      <mat-label>Search title</mat-label>
+      <input
+        matInput
+        type="search"
+        [value]="search"
+        (input)="onSearch($any($event.target).value)"
+        placeholder="e.g. Two Sum"
+      />
+      <button
+        *ngIf="search"
+        mat-icon-button
+        matSuffix
+        aria-label="Clear search"
+        (click)="onSearch('')"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="tags">
+      <mat-label>Filter tags</mat-label>
+      <mat-select
+        [value]="selectedTags"
+        (selectionChange)="onTagsChange($event.value)"
+        multiple
+      >
+        <mat-option *ngFor="let t of allTags" [value]="t">{{ t }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <button
+      mat-stroked-button
+      class="clear"
+      (click)="clearFilters()"
+      [disabled]="!search && selectedTags.length === 0"
+    >
+      Clear filters
+    </button>
+  </div>
+
+  <table
+    mat-table
+    [dataSource]="unscoredDS"
+    matSort
+    class="reviews-table"
+    aria-label="Unscored reviews"
+  >
+    <!-- Title -->
     <ng-container matColumnDef="title">
-      <th mat-header-cell *matHeaderCellDef>Title</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Title </th>
       <td mat-cell *matCellDef="let row">{{ row.problem.title }}</td>
     </ng-container>
+
+    <!-- Tags -->
     <ng-container matColumnDef="tags">
-      <th mat-header-cell *matHeaderCellDef>Tags</th>
+      <th mat-header-cell *matHeaderCellDef> Tags </th>
       <td mat-cell *matCellDef="let row">
-        <app-tag-chip *ngFor="let t of row.problem.tags" [tag]="t"></app-tag-chip>
+        <app-tag-chip
+          *ngFor="let t of row.problem.tags; trackBy: trackByTag"
+          [tag]="t"
+        ></app-tag-chip>
       </td>
     </ng-container>
+
+    <!-- Difficulty -->
     <ng-container matColumnDef="difficulty">
-      <th mat-header-cell *matHeaderCellDef>Difficulty</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Difficulty </th>
       <td mat-cell *matCellDef="let row">
-        <app-difficulty-pill [difficulty]="row.problem.difficulty"></app-difficulty-pill>
+        <app-difficulty-pill
+          [difficulty]="row.problem.difficulty"
+        ></app-difficulty-pill>
       </td>
     </ng-container>
+
+    <!-- Due (always — for unscored we show dash) -->
     <ng-container matColumnDef="due">
-      <th mat-header-cell *matHeaderCellDef>Due</th>
-      <td mat-cell *matCellDef="let row">{{ row.nextReviewAt | date:'shortDate' }}</td>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Due </th>
+      <td mat-cell *matCellDef>—</td>
     </ng-container>
+
+    <!-- Actions -->
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let row">
         <button mat-button (click)="rate(row)">Rate</button>
       </td>
     </ng-container>
+
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: displayedColumns; trackBy: trackById"
+    ></tr>
+
+    <tr class="no-data" mat-row *matNoDataRow>
+      <td class="no-data-cell" [attr.colspan]="displayedColumns.length">
+        No items match your filters.
+      </td>
+    </tr>
   </table>
+
+  <mat-paginator
+    [length]="unscoredDS?.filteredData?.length || 0"
+    [pageSize]="10"
+    [pageSizeOptions]="[5, 10, 25, 50]"
+    showFirstLastButtons
+    aria-label="Unscored paginator"
+  ></mat-paginator>
 </section>

@@ -1,7 +1,26 @@
-<h1 mat-dialog-title>{{ data.title }}</h1>
-<div mat-dialog-content>
+<h1 mat-dialog-title>Rate recall — {{ data.title }}</h1>
+
+<div mat-dialog-content class="content">
   <p>Select recall quality:</p>
+
+  <div class="grid">
+    <button
+      *ngFor="let q of defs"
+      mat-raised-button
+      [color]="q.color"
+      (click)="choose(q.value)"
+      [matTooltip]="q.help"
+      [attr.aria-label]="q.aria"
+    >
+      <mat-icon class="icon" aria-hidden="true" *ngIf="q.icon">{{ q.icon }}</mat-icon>
+      <span class="value">{{ q.value }}</span>
+      <span class="label">{{ q.label }}</span>
+    </button>
+  </div>
+
+  <p class="hint">Tip: press 0–5 on your keyboard.</p>
 </div>
-<div mat-dialog-actions>
-  <button mat-button *ngFor="let q of qualities" (click)="choose(q)">{{ q }}</button>
+
+<div mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()">Cancel</button>
 </div>

@@ -1,1 +1,7 @@
-<mat-chip [ngClass]="difficulty.toLowerCase()">{{ difficulty }}</mat-chip>
+<mat-chip
+  class="pill"
+  [ngClass]="cssClass"
+  [attr.aria-label]="'Difficulty: ' + label"
+>
+  {{ label }}
+</mat-chip>

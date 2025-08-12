@@ -1,22 +1,50 @@
 <ng-container *ngIf="problem$ | async as problem">
   <mat-card>
-    <mat-card-title>{{ problem.title }}</mat-card-title>
-    <mat-card-subtitle>
-      <app-difficulty-pill [difficulty]="problem.difficulty"></app-difficulty-pill>
-      <app-tag-chip *ngFor="let t of problem.tags" [tag]="t"></app-tag-chip>
-    </mat-card-subtitle>
+    <mat-card-header>
+      <div>
+        <mat-card-title>{{ problem.title }}</mat-card-title>
+        <mat-card-subtitle class="meta">
+          <app-difficulty-pill [difficulty]="problem.difficulty"></app-difficulty-pill>
+          <app-tag-chip *ngFor="let t of problem.tags" [tag]="t"></app-tag-chip>
+        </mat-card-subtitle>
+      </div>
+    </mat-card-header>
+
     <mat-card-actions>
-      <button mat-button (click)="rate(problem)">Rate Recall</button>
+      <button mat-raised-button color="primary" (click)="rate(problem)">Rate Recall</button>
     </mat-card-actions>
+
     <mat-tab-group>
       <mat-tab label="Description">
-        <div class="pad">{{ problem.description }}</div>
-      </mat-tab>
-      <mat-tab label="Notes">
-        <div class="pad">
-          <textarea matInput [(ngModel)]="notes" placeholder="Notes"></textarea>
-          <button mat-button (click)="saveNotes(problem.id)">Save</button>
+        <div class="pad description">
+          {{ problem.description }}
         </div>
+      </mat-tab>
+
+      <mat-tab label="Notes">
+        <form class="pad" (ngSubmit)="saveNotes(problem.id)">
+          <mat-form-field appearance="outline" class="w-100">
+            <mat-label>Notes</mat-label>
+            <textarea
+              matInput
+              name="notes"
+              [(ngModel)]="notes"
+              cdkTextareaAutosize
+              [cdkAutosizeMinRows]="4"
+              [cdkAutosizeMaxRows]="20"
+              placeholder="Add your insights, pitfalls, time/space, gotchas…"
+              [disabled]="saving"
+            ></textarea>
+          </mat-form-field>
+
+          <div class="note-actions">
+            <button mat-stroked-button type="button" (click)="notes=''" [disabled]="saving">Clear</button>
+            <span class="spacer"></span>
+            <button mat-raised-button color="primary" type="submit" [disabled]="saving || !notesChanged">
+              {{ saving ? 'Saving…' : 'Save' }}
+            </button>
+          </div>
+        </form>
       </mat-tab>
     </mat-tab-group>
   </mat-card>

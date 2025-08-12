@@ -1,10 +1,29 @@
 .filters {
-  display: flex;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: 1fr minmax(200px, 240px) auto;
+  gap: 12px;
   margin-bottom: 1rem;
   align-items: center;
+
+  .search { width: 100%; }
+  .difficulty { width: 100%; }
+}
+
+@media (max-width: 720px) {
+  .filters {
+    grid-template-columns: 1fr;
+    .clear { justify-self: start; }
+  }
 }
 
 .problems-table {
   width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.no-data .no-data-cell {
+  text-align: center;
+  padding: 16px;
+  opacity: 0.8;
 }

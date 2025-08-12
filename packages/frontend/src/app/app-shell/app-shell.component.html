@@ -1,11 +1,28 @@
-<mat-sidenav-container class="app-container">
-  <mat-sidenav #drawer mode="side" opened>
-    <app-sidenav></app-sidenav>
+<mat-sidenav-container class="app-container" autosize>
+  <mat-sidenav
+    #drawer
+    [mode]="(isHandset$ | async) ? 'over' : 'side'"
+    [opened]="!(isHandset$ | async)"
+  >
+    <!-- Emit (navigate) from your <app-sidenav> when a link is clicked -->
+    <app-sidenav (navigate)="onNavItem()"></app-sidenav>
   </mat-sidenav>
+
   <mat-sidenav-content>
-    <app-toolbar title="LeetCode Tracker" (menu)="drawer.toggle()"></app-toolbar>
-    <main class="content">
-      <router-outlet></router-outlet>
+    <app-toolbar
+      title="LeetCode Tracker"
+      (menu)="drawer.toggle()"
+    ></app-toolbar>
+
+    <!-- Guard the animation so we never touch outlet before activation -->
+    <main
+      class="content"
+      [@fadeAnimation]="o?.isActivated
+        ? (o.activatedRoute.snapshot.routeConfig?.path || 'init')
+        : 'init'"
+      tabindex="-1"
+    >
+      <router-outlet #o="outlet"></router-outlet>
     </main>
   </mat-sidenav-content>
 </mat-sidenav-container>

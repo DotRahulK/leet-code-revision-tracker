@@ -1,3 +1,20 @@
-.pad {
-  padding: 1rem;
+.pad { padding: 1rem; }
+
+.description {
+  white-space: pre-wrap; /* keep formatting of long text */
+  line-height: 1.5;
+}
+
+.meta app-tag-chip {
+  margin-inline-start: 6px;
+}
+
+.w-100 { width: 100%; }
+
+.note-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .spacer { flex: 1 1 auto; }
 }

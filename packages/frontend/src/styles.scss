@@ -1,6 +1,336 @@
+/* styles.scss */
 @use '@angular/material' as mat;
-@use './styles/theme';
+
+/* Keep vscode-hc overrides, but they MUST be scoped in that file (e.g. .vscode-hc { ... }) */
+@import './themes/vscode-hc';
 
 @include mat.core();
 
-body { margin: 0; font-family: Roboto, sans-serif; }
+/* ---------- Light (white) ---------- */
+$white-primary: mat.define-palette(mat.$indigo-palette);
+$white-accent:  mat.define-palette(mat.$pink-palette);
+$white-warn:    mat.define-palette(mat.$red-palette);
+
+$white-theme: mat.define-light-theme((
+  color: (
+    primary: $white-primary,
+    accent:  $white-accent,
+    warn:    $white-warn,
+  ),
+  density: 0,
+));
+
+/* ---------- Dark (high-contrast) ---------- */
+$dark-primary: mat.define-palette(mat.$blue-palette);
+$dark-accent:  mat.define-palette(mat.$blue-grey-palette);
+$dark-warn:    mat.define-palette(mat.$red-palette);
+
+$high-contrast-dark-theme: mat.define-dark-theme((
+  color: (
+    primary: $dark-primary,
+    accent:  $dark-accent,
+    warn:    $dark-warn,
+  ),
+  density: 0,
+));
+
+/* ---------- E-Ink (pure black/white) ---------- */
+$eink-primary: mat.define-palette(mat.$grey-palette, 900);
+$eink-accent:  mat.define-palette(mat.$grey-palette, 900);
+$eink-warn:    mat.define-palette(mat.$grey-palette, 900);
+
+$eink-theme: mat.define-light-theme((
+  color: (
+    primary: $eink-primary,
+    accent:  $eink-accent,
+    warn:    $eink-warn,
+  ),
+  density: -1,
+));
+
+/* ---------- E-Ink DARK (inverted pure B/W) ---------- */
+$eink-dark-primary: mat.define-palette(mat.$grey-palette, 50);
+$eink-dark-theme: mat.define-dark-theme((
+  color: (
+    primary: $eink-dark-primary,
+    accent:  $eink-dark-primary,
+    warn:    $eink-dark-primary,
+  ),
+  density: -1,
+));
+
+/* ---------- Apply component themes under body classes ---------- */
+.theme-white               { @include mat.all-component-themes($white-theme); }
+.theme-high-contrast-dark  { @include mat.all-component-themes($high-contrast-dark-theme); }
+.theme-eink                { @include mat.all-component-themes($eink-theme); }
+.theme-eink-dark           { @include mat.all-component-themes($eink-dark-theme); }
+
+/* Typography only once */
+:root { @include mat.all-component-typographies($white-theme); }
+
+/* Native controls color-scheme */
+:root { color-scheme: light; }
+.theme-high-contrast-dark,
+.theme-eink-dark { color-scheme: dark; }
+
+/* ---------- App background & layout ---------- */
+html, body, app-root { min-height: 100%; }
+
+body.theme-white,
+body.theme-eink { background: #fff; }
+
+body.theme-high-contrast-dark,
+body.theme-eink-dark { background: #000; }
+
+/* ---------- COMMON: widen main content & tables (no phone-like column) ---------- */
+.content { max-width: none; width: 100%; margin: 0; padding: 16px; }
+.mat-mdc-table { width: 100%; margin: 0; table-layout: auto; }
+.mat-mdc-cell, .mat-mdc-header-cell { padding: 12px 16px; }
+
+/* If you wrap your main content with .mat-app-background, keep it readable */
+.mat-app-background { min-height: 100%; }
+
+/* ============================================================= */
+/* ======================= E-INK LIGHT ========================= */
+/* ============================================================= */
+.theme-eink {
+  /* Monochrome tokens for MDC-driven bits */
+  --mat-sys-surface: #ffffff;
+  --mat-sys-on-surface: #000000;
+  --mat-sys-primary: #000000;
+  --mat-sys-on-primary: #ffffff;
+  --mat-sys-surface-variant: #f4f4f4;
+  --mat-sys-on-surface-variant: #000000;
+  --mat-sys-outline: #000000;
+
+  body { background: #fff; color: #000; font-family: Georgia, 'Times New Roman', Times, serif; }
+
+  /* Sidenav as index column */
+  mat-sidenav {
+    background: #fff !important;
+    color: #000 !important;
+    border-right: 1px solid #000;
+    width: 260px !important;
+  }
+
+  /* Nav item text/icon must stay visible when selected */
+  a.mat-mdc-list-item {
+    color: #000 !important;
+    border-left: 3px solid transparent;
+
+    .mat-mdc-list-item-title,
+    .mat-mdc-list-item-line,
+    .mat-mdc-list-item-unscoped-content,
+    .mdc-list-item__primary-text,
+    mat-icon { color: inherit !important; }
+  }
+  a.mat-mdc-list-item:hover {
+    background: #000 !important;
+    color: #fff !important;
+  }
+  a.mat-mdc-list-item.active {
+    background: #000 !important;
+    color: #fff !important;
+    border-left-color: #000;
+  }
+
+  /* Toolbar & cards: paper-like, no elevation */
+  mat-toolbar {
+    background: #fff !important;
+    color: #000 !important;
+    border-bottom: 1px solid #000;
+  }
+  .mat-mdc-card, mat-card.mdc-card {
+    background: #fff !important; color: #000 !important;
+    border: 1px solid #000; border-radius: 0; box-shadow: none !important;
+  }
+
+  /* Buttons: only black/white */
+  .mat-mdc-button-base { border-radius: 0; box-shadow: none !important; }
+  .mat-mdc-raised-button, .mat-mdc-unelevated-button { background: #000 !important; color: #fff !important; }
+  .mat-mdc-outlined-button, .mat-mdc-stroked-button { border-color: #000 !important; color: #000 !important; }
+  .mat-mdc-icon-button { color: #000 !important; }
+
+  /* Inputs (outlined) – fix label/input/placeholder/caret visibility */
+  .mdc-text-field--outlined {
+    background: #fff !important; color: #000 !important; border-radius: 0 !important;
+
+    --mdc-outlined-text-field-outline-color: #000;
+    --mdc-outlined-text-field-hover-outline-color: #000;
+    --mdc-outlined-text-field-focus-outline-color: #000;
+
+    --mdc-outlined-text-field-input-text-color: #000;
+    --mdc-outlined-text-field-label-text-color: #000;
+    --mdc-outlined-text-field-caret-color: #000;
+    --mdc-outlined-text-field-input-text-placeholder-color: #333;
+  }
+  .mat-mdc-form-field-subscript-wrapper { color: #000; }
+
+  /* Select / option panel contrast */
+  .mat-mdc-select-panel { background: #fff !important; color: #000 !important; }
+  .mat-mdc-option.mdc-list-item--selected,
+  .mat-mdc-option:hover { background: #000 !important; color: #fff !important; }
+
+  /* Tables: crisp grid */
+  .mat-mdc-table { background: #fff; color: #000; border: 1px solid #000; border-radius: 0; }
+  .mat-mdc-header-row, .mat-mdc-row { border-bottom: 1px solid #000; }
+
+  /* Chips/pills: outlined only */
+  .mat-mdc-chip { background: transparent !important; border: 1px solid #000; color: #000; border-radius: 999px; }
+
+  /* Remove ripples & shadows */
+  .mat-ripple-element { display: none !important; }
+  [class*='mat-elevation-z'] { box-shadow: none !important; }
+}
+
+/* ============================================================= */
+/* ====================== E-INK DARK =========================== */
+/* ============================================================= */
+.theme-eink-dark {
+  --mat-sys-surface: #000000;
+  --mat-sys-on-surface: #ffffff;
+  --mat-sys-primary: #ffffff;
+  --mat-sys-on-primary: #000000;
+  --mat-sys-surface-variant: #1a1a1a;
+  --mat-sys-on-surface-variant: #ffffff;
+  --mat-sys-outline: #ffffff;
+
+  body { background: #000; color: #fff; font-family: Georgia, 'Times New Roman', Times, serif; }
+
+  .content { max-width: none; width: 100%; margin: 0; padding: 16px; }
+  .mat-mdc-table { width: 100%; margin: 0; table-layout: auto; }
+  .mat-mdc-cell, .mat-mdc-header-cell { padding: 12px 16px; }
+
+  mat-sidenav {
+    background: #000 !important;
+    color: #fff !important;
+    border-right: 1px solid #fff;
+    width: 260px !important;
+  }
+
+  a.mat-mdc-list-item {
+    color: #fff !important;
+    border-left: 3px solid transparent;
+
+    .mat-mdc-list-item-title,
+    .mat-mdc-list-item-line,
+    .mat-mdc-list-item-unscoped-content,
+    .mdc-list-item__primary-text,
+    mat-icon { color: inherit !important; }
+  }
+  a.mat-mdc-list-item:hover {
+    background: #fff !important; color: #000 !important;
+  }
+  a.mat-mdc-list-item.active {
+    background: #fff !important; color: #000 !important; border-left-color: #fff;
+  }
+
+  mat-toolbar { background: #000 !important; color: #fff !important; border-bottom: 1px solid #fff; }
+  .mat-mdc-card, mat-card.mdc-card {
+    background: #000 !important; color: #fff !important;
+    border: 1px solid #fff; border-radius: 0; box-shadow: none !important;
+  }
+
+  .mat-mdc-button-base { border-radius: 0; box-shadow: none !important; }
+  .mat-mdc-raised-button, .mat-mdc-unelevated-button { background: #fff !important; color: #000 !important; }
+  .mat-mdc-outlined-button, .mat-mdc-stroked-button { border-color: #fff !important; color: #fff !important; }
+  .mat-mdc-icon-button { color: #fff !important; }
+
+  .mdc-text-field--outlined {
+    background: #000 !important; color: #fff !important; border-radius: 0 !important;
+
+    --mdc-outlined-text-field-outline-color: #fff;
+    --mdc-outlined-text-field-hover-outline-color: #fff;
+    --mdc-outlined-text-field-focus-outline-color: #fff;
+
+    --mdc-outlined-text-field-input-text-color: #fff;
+    --mdc-outlined-text-field-label-text-color: #fff;
+    --mdc-outlined-text-field-caret-color: #fff;
+    --mdc-outlined-text-field-input-text-placeholder-color: #bbb;
+  }
+  .mat-mdc-form-field-subscript-wrapper { color: #fff; }
+
+  .mat-mdc-select-panel { background: #000 !important; color: #fff !important; }
+  .mat-mdc-option.mdc-list-item--selected,
+  .mat-mdc-option:hover { background: #fff !important; color: #000 !important; }
+
+  .mat-mdc-table { background: #000; color: #fff; border: 1px solid #fff; border-radius: 0; }
+  .mat-mdc-header-row, .mat-mdc-row { border-bottom: 1px solid #fff; }
+
+  .mat-mdc-chip { background: transparent !important; border: 1px solid #fff; color: #fff; border-radius: 999px; }
+
+  .mat-ripple-element { display: none !important; }
+  [class*='mat-elevation-z'] { box-shadow: none !important; }
+}
+
+
+
+/* ==== Layout guardrails: paste at the END of styles.scss ==== */
+
+/* 1) Make layout sizing predictable */
+*, *::before, *::after { box-sizing: border-box; }
+
+/* 2) Kill page-wide horizontal scroll without hiding legit inner scrolls */
+html, body { max-width: 100%; overflow-x: clip; } /* clip > hidden (perf) */
+
+/* 3) Content container: tidy inset + max width */
+:root { --page-max: 1200px; } /* tweak to taste */
+.content {
+  max-width: min(var(--page-max), 100%);
+  margin-inline: auto;
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+}
+
+/* 4) Sidenav container/content shouldn’t create stray scrollbars */
+mat-sidenav-container,
+mat-sidenav-content { overflow-x: clip; }
+
+/* 5) Tables: never push the page; scroll inside if needed */
+table.mat-mdc-table {
+  display: block;        /* make it a scroll container */
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 6) Cells: allow wrapping so long strings/chips don’t force overflow */
+.mat-mdc-header-cell,
+.mat-mdc-cell {
+  white-space: normal !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  padding: 12px 16px;
+}
+
+/* 7) Tag chips: allow natural wrapping and spacing in table cells */
+td app-tag-chip { margin: 2px 6px 2px 0; display: inline-block; }
+
+/* 8) Inputs/selects: ensure text & labels are visible in E-Ink themes */
+.theme-eink .mdc-text-field--outlined,
+.theme-eink-dark .mdc-text-field--outlined {
+  --mdc-outlined-text-field-input-text-color: var(--mat-sys-on-surface, #000);
+  --mdc-outlined-text-field-label-text-color: var(--mat-sys-on-surface, #000);
+  --mdc-outlined-text-field-caret-color: var(--mat-sys-on-surface, #000);
+  --mdc-outlined-text-field-input-text-placeholder-color: rgba(0,0,0,.6);
+}
+.theme-eink-dark .mdc-text-field--outlined {
+  --mdc-outlined-text-field-input-text-color: #fff;
+  --mdc-outlined-text-field-label-text-color: #fff;
+  --mdc-outlined-text-field-caret-color: #fff;
+  --mdc-outlined-text-field-input-text-placeholder-color: rgba(255,255,255,.7);
+}
+
+/* 9) Selected nav item: keep text/icons readable in E-Ink */
+.theme-eink a.mat-mdc-list-item.active,
+.theme-eink a.mat-mdc-list-item:hover {
+  background: #000 !important; color: #fff !important;
+}
+.theme-eink-dark a.mat-mdc-list-item.active,
+.theme-eink-dark a.mat-mdc-list-item:hover {
+  background: #fff !important; color: #000 !important;
+}
+.theme-eink a.mat-mdc-list-item,
+.theme-eink-dark a.mat-mdc-list-item {
+  color: inherit !important;
+}
