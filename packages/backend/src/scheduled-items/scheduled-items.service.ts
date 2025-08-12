@@ -1,11 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, FindOptionsWhere } from 'typeorm';
+import { Repository } from 'typeorm';
 import { ScheduledItem, ScheduledItemType } from './scheduled-item.entity';
 import { ProblemListItem } from '../problem-list-items/problem-list-item.entity';
 import { ScheduleListDto, ScheduleSpacing } from './dto/schedule-list.dto';
 import { MarkDoneDto } from './dto/mark-done.dto';
 import { CompletionLog } from '../completion-logs/completion-log.entity';
+import { Problem } from '../problems/problem.entity';
 
 @Injectable()
 export class ScheduledItemsService {
@@ -16,6 +17,8 @@ export class ScheduledItemsService {
     private readonly listItemRepo: Repository<ProblemListItem>,
     @InjectRepository(CompletionLog)
     private readonly logRepo: Repository<CompletionLog>,
+    @InjectRepository(Problem)
+    private readonly problemRepo: Repository<Problem>,
   ) {}
 
   async scheduleList(listId: string, dto: ScheduleListDto) {
@@ -68,10 +71,46 @@ export class ScheduledItemsService {
     return { success: true };
   }
 
-  findAll(type?: ScheduledItemType | 'ALL') {
-    const where: FindOptionsWhere<ScheduledItem> | undefined =
-      type && type !== 'ALL' ? { type } : undefined;
-    return this.repo.find({ where, order: { dueAt: 'ASC' } });
+  async scheduleProblem(problemId: string, dueAt: Date = new Date()) {
+    const problem = await this.problemRepo.findOne({ where: { id: problemId } });
+    if (!problem) {
+      throw new NotFoundException('Problem not found');
+    }
+    const item = this.repo.create({
+      type: 'NEXT_UP',
+      problem,
+      dueAt,
+      status: 'PLANNED',
+    });
+    return this.repo.save(item);
+  }
+
+  async findAll(
+    type?: ScheduledItemType | 'ALL',
+    status: 'PLANNED' | 'DONE' | 'CANCELLED' | 'ALL' = 'PLANNED',
+    from?: Date,
+    to?: Date,
+    page = 1,
+    pageSize = 25,
+  ) {
+    const qb = this.repo
+      .createQueryBuilder('s')
+      .leftJoinAndSelect('s.problem', 'problem')
+      .leftJoinAndSelect('s.list', 'list')
+      .orderBy('s.dueAt', 'ASC');
+
+    if (type && type !== 'ALL') qb.andWhere('s.type = :type', { type });
+    if (status && status !== 'ALL') qb.andWhere('s.status = :status', { status });
+    if (from) qb.andWhere('s.dueAt >= :from', { from });
+    if (to) qb.andWhere('s.dueAt <= :to', { to });
+
+    const take = Math.max(1, Math.min(100, pageSize));
+    const skip = (Math.max(1, page) - 1) * take;
+
+    qb.take(take).skip(skip);
+
+    const [items, total] = await qb.getManyAndCount();
+    return { items, total, page: Math.max(1, page), pageSize: take };
   }
 
   async markDone(id: string, dto: MarkDoneDto) {

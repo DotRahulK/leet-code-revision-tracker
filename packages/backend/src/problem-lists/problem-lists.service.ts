@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { ProblemList } from './problem-list.entity';
 import { ProblemListItem } from '../problem-list-items/problem-list-item.entity';
 import { UserProblemsService } from '../user-problems/user-problems.service';
+import { Problem } from '../problems/problem.entity';
 
 @Injectable()
 export class ProblemListsService {
@@ -13,10 +14,51 @@ export class ProblemListsService {
     @InjectRepository(ProblemListItem)
     private readonly itemRepo: Repository<ProblemListItem>,
     private readonly userProblems: UserProblemsService,
+    @InjectRepository(Problem)
+    private readonly problemRepo: Repository<Problem>,
   ) {}
 
   findAll() {
     return this.listRepo.find();
+  }
+
+  create(name: string) {
+    const list = this.listRepo.create({ name });
+    return this.listRepo.save(list);
+  }
+
+  findCustomLists() {
+    return this.listRepo.find({ where: { source: 'custom' } });
+  }
+
+  async findOneWithItems(id: string) {
+    const list = await this.listRepo.findOne({
+      where: { id },
+      relations: ['items', 'items.problem'],
+      order: { items: { order: 'ASC' } },
+    } as any);
+    if (!list) {
+      throw new NotFoundException('List not found');
+    }
+    return list;
+  }
+
+  async addProblems(listId: string, problemIds: string[]) {
+    const list = await this.listRepo.findOne({ where: { id: listId } });
+    if (!list) {
+      throw new NotFoundException('List not found');
+    }
+    const existing = await this.itemRepo.count({ where: { list: { id: listId } } });
+    const items: ProblemListItem[] = [];
+    let offset = 0;
+    for (const pid of problemIds) {
+      const problem = await this.problemRepo.findOne({ where: { id: pid } });
+      if (problem) {
+        items.push(this.itemRepo.create({ list, problem, order: existing + offset }));
+        offset++;
+      }
+    }
+    return this.itemRepo.save(items);
   }
 
   async schedule(id: string) {

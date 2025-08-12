@@ -1,6 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { MatTableModule } from '@angular/material/table';
-import { AsyncPipe, NgFor, NgIf } from '@angular/common';
+import { AsyncPipe, NgFor, NgIf, FormsModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { DifficultyPillComponent } from '../../shared/ui/difficulty-pill/difficulty-pill.component';
 import { TagChipComponent } from '../../shared/ui/tag-chip/tag-chip.component';
 import { ListsFacade } from '../../core/lists.facade';
@@ -20,7 +23,8 @@ type Row = {
   standalone: true,
   imports: [
     MatTableModule,
-    NgFor, NgIf, AsyncPipe,
+    NgFor, NgIf, AsyncPipe, FormsModule,
+    MatButtonModule, MatFormFieldModule, MatInputModule,
     DifficultyPillComponent,
     TagChipComponent,
   ],
@@ -32,6 +36,7 @@ export class ListDetailPage {
   private route = inject(ActivatedRoute);
 
   displayedColumns = ['title', 'tags', 'difficulty'];
+  newProblemId = '';
 
   // Load the list reactively when the route param changes
   list$: Observable<UiList> = this.route.paramMap.pipe(
@@ -59,4 +64,16 @@ export class ListDetailPage {
 
   trackById = (_: number, r: Row) => r.id;
   trackByTag = (_: number, t: string) => t;
+
+  scheduleList(id: string) {
+    this.facade.scheduleList(id).subscribe();
+  }
+
+  addProblem(id: string) {
+    if (!this.newProblemId) return;
+    this.facade.addProblems(id, [this.newProblemId]).subscribe(() => {
+      this.newProblemId = '';
+      this.list$ = this.facade.getList(id);
+    });
+  }
 }

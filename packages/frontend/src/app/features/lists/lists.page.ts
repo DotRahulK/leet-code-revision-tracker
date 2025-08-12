@@ -9,8 +9,9 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AsyncPipe, NgFor, NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
-import { ListsFacade } from '../../core/lists.facade';
+  import { ListsFacade } from '../../core/lists.facade';
 import { UiList } from '../../core/models';
 import { Observable } from 'rxjs';
 
@@ -33,6 +34,7 @@ import { Observable } from 'rxjs';
     NgFor,
     NgIf,
     AsyncPipe,
+    FormsModule,
   ],
   templateUrl: './lists.page.html',
   styleUrls: ['./lists.page.scss'],
@@ -40,12 +42,14 @@ import { Observable } from 'rxjs';
 export class ListsPage implements OnInit {
   lists$!: Observable<UiList[]>;
   importUrl = '';
+  newListName = '';
   isBusy = false;
 
   /** Accept http(s)://… OR a slug like "folder/name" or "my-list" */
   readonly importPattern = '^(https?://\\S+|[A-Za-z0-9](?:[A-Za-z0-9\\-/]*))$';
 
   @ViewChild('importDialog') importDialog!: TemplateRef<any>;
+  @ViewChild('newListDialog') newListDialog!: TemplateRef<any>;
 
   private dialog = inject(MatDialog);
   private facade = inject(ListsFacade);
@@ -66,6 +70,18 @@ export class ListsPage implements OnInit {
       .subscribe((url: string | null | undefined) => {
         if (url && this.isValidImport(url)) {
           this.doImport(url);
+        }
+      });
+  }
+
+  openNewListDialog() {
+    this.newListName = '';
+    this.dialog
+      .open(this.newListDialog, { width: '360px' })
+      .afterClosed()
+      .subscribe((name: string | null | undefined) => {
+        if (name) {
+          this.facade.createList(name).subscribe(() => this.load());
         }
       });
   }

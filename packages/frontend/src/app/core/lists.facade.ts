@@ -13,7 +13,7 @@ export class ListsFacade {
 
   getLists(): Observable<UiList[]> {
     this.loading.set(true);
-    return this.http.get<any[]>('/api/lists').pipe(
+    return this.http.get<any[]>('/api/lists/custom').pipe(
       map(arr => arr.map(apiListToUi)),
       catchError(err => {
         this.toast.error('Failed to load lists');
@@ -25,7 +25,7 @@ export class ListsFacade {
 
   getList(id: string): Observable<UiList> {
     this.loading.set(true);
-    return this.http.get<any>(`/api/lists/${id}`).pipe(
+    return this.http.get<any>(`/api/lists/custom/${id}`).pipe(
       map(apiListToUi),
       catchError(err => {
         this.toast.error('Failed to load list');
@@ -40,6 +40,34 @@ export class ListsFacade {
       map(apiListToUi),
       catchError(err => {
         this.toast.error('Failed to import list');
+        return throwError(() => err);
+      })
+    );
+  }
+
+  createList(name: string): Observable<UiList> {
+    return this.http.post<any>('/api/lists/custom', { name }).pipe(
+      map(apiListToUi),
+      catchError(err => {
+        this.toast.error('Failed to create list');
+        return throwError(() => err);
+      })
+    );
+  }
+
+  addProblems(listId: string, problemIds: string[]): Observable<any> {
+    return this.http.post(`/api/lists/custom/${listId}/items`, { problemIds }).pipe(
+      catchError(err => {
+        this.toast.error('Failed to add problems');
+        return throwError(() => err);
+      })
+    );
+  }
+
+  scheduleList(listId: string): Observable<any> {
+    return this.http.post(`/api/lists/custom/${listId}/schedule`, {}).pipe(
+      catchError(err => {
+        this.toast.error('Failed to schedule list');
         return throwError(() => err);
       })
     );

@@ -13,13 +13,22 @@ export class ScheduledFacade {
 
   getScheduled(): Observable<UiScheduledItem[]> {
     this.loading.set(true);
-    return this.http.get<any[]>('/api/scheduled').pipe(
-      map(arr => arr.map(apiScheduledItemToUi)),
+    return this.http.get<any>('/api/scheduled').pipe(
+      map(res => (res.items ?? []).map(apiScheduledItemToUi)),
       catchError(err => {
         this.toast.error('Failed to load scheduled items');
         return throwError(() => err);
       }),
       finalize(() => this.loading.set(false))
+    );
+  }
+
+  scheduleProblem(problemId: string): Observable<any> {
+    return this.http.post(`/api/scheduled/problem/${problemId}`, {}).pipe(
+      catchError(err => {
+        this.toast.error('Failed to schedule problem');
+        return throwError(() => err);
+      })
     );
   }
 }

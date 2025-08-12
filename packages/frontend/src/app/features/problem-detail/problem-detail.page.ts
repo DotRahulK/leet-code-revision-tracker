@@ -17,6 +17,7 @@ import { ReviewsFacade } from '../../core/reviews.facade';
 import { UiProblem } from '../../core/models';
 import { Observable, map, switchMap, filter, of } from 'rxjs';
 import { RateDialogComponent } from '../../shared/ui/rate-dialog/rate-dialog.component';
+import { ScheduledFacade } from '../../core/scheduled.facade';
 
 @Component({
   selector: 'app-problem-detail-page',
@@ -41,6 +42,7 @@ export class ProblemDetailPage implements OnInit {
   private reviews = inject(ReviewsFacade);
   private dialog = inject(MatDialog);
   private snack = inject(MatSnackBar);
+  private scheduled = inject(ScheduledFacade);
 
   problem$!: Observable<UiProblem>;
 
@@ -97,5 +99,12 @@ export class ProblemDetailPage implements OnInit {
         next: () => this.snack.open('Recall rated', undefined, { duration: 1500 }),
         error: () => this.snack.open('Failed to submit rating', 'Dismiss', { duration: 2500 })
       });
+  }
+
+  schedule(problem: UiProblem) {
+    this.scheduled.scheduleProblem(problem.id).subscribe({
+      next: () => this.snack.open('Scheduled', undefined, { duration: 1500 }),
+      error: () => this.snack.open('Failed to schedule', 'Dismiss', { duration: 2500 }),
+    });
   }
 }

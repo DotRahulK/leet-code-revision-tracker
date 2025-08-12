@@ -2,7 +2,10 @@
 <mat-progress-bar *ngIf="isBusy" mode="indeterminate"></mat-progress-bar>
 
 <div class="actions">
-  <button mat-raised-button color="primary" (click)="openImportDialog()">
+  <button mat-raised-button color="primary" (click)="openNewListDialog()">
+    New List
+  </button>
+  <button mat-stroked-button color="primary" (click)="openImportDialog()">
     Import List
   </button>
 </div>
@@ -76,6 +79,23 @@
       >
         Import
       </button>
+    </div>
+  </form>
+</ng-template>
+
+<!-- New list dialog -->
+<ng-template #newListDialog>
+  <h1 mat-dialog-title>New List</h1>
+  <form #f="ngForm" (ngSubmit)="" >
+    <div mat-dialog-content>
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Name</mat-label>
+        <input matInput name="name" [(ngModel)]="newListName" required />
+      </mat-form-field>
+    </div>
+    <div mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close type="button">Cancel</button>
+      <button mat-raised-button color="primary" [mat-dialog-close]="newListName" type="submit">Create</button>
     </div>
   </form>
 </ng-template>
