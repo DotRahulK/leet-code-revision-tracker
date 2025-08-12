@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { ScheduledItem } from './scheduled-item.entity';
+import { Repository, FindOptionsWhere } from 'typeorm';
+import { ScheduledItem, ScheduledItemType } from './scheduled-item.entity';
 import { ProblemListItem } from '../problem-list-items/problem-list-item.entity';
 import { ScheduleListDto, ScheduleSpacing } from './dto/schedule-list.dto';
 import { MarkDoneDto } from './dto/mark-done.dto';
@@ -68,8 +68,9 @@ export class ScheduledItemsService {
     return { success: true };
   }
 
-  findAll(type?: string) {
-    const where = type && type !== 'ALL' ? { type } : {};
+  findAll(type?: ScheduledItemType | 'ALL') {
+    const where: FindOptionsWhere<ScheduledItem> | undefined =
+      type && type !== 'ALL' ? { type } : undefined;
     return this.repo.find({ where, order: { dueAt: 'ASC' } });
   }
 
